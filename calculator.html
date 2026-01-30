@@ -34,6 +34,9 @@
     <!-- Fonts & Styles -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+
+    <!-- jsPDF for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         /* Calculator-specific styles */
         .calculator-page {
@@ -733,6 +736,37 @@
         .config-slot.has-config .config-slot-label {
             color: var(--accent);
             font-weight: 500;
+        }
+
+        /* Download PDF Button */
+        .download-pdf-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            width: 100%;
+            margin-top: var(--space-md);
+            padding: var(--space-md);
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 8px;
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .download-pdf-btn:hover {
+            background: var(--accent-light);
+            transform: translateY(-2px);
+        }
+
+        .download-pdf-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
         }
 
         .config-actions {
@@ -1730,6 +1764,15 @@
         body.light-mode .config-slot.has-config .config-slot-label {
             color: var(--text-primary);
         }
+
+        body.light-mode .download-pdf-btn {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+        }
+
+        body.light-mode .download-pdf-btn:hover {
+            background: var(--text-secondary);
+        }
     </style>
 </head>
 <body>
@@ -2247,6 +2290,15 @@
                                 </div>
                             </div>
                         </div>
+                        <button class="download-pdf-btn" onclick="downloadPDF()">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <line x1="12" y1="18" x2="12" y2="12" stroke="currentColor" stroke-width="2"/>
+                                <polyline points="9 15 12 18 15 15" fill="none" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            Download PDF
+                        </button>
                     </div>
                     </div>
                 </div>
@@ -3350,6 +3402,200 @@
                 });
             }
         })();
+
+        // PDF Download Function
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Colors
+            const accentColor = [212, 132, 90];
+            const textColor = [40, 40, 40];
+            const lightGray = [120, 120, 120];
+
+            let y = 20;
+            const leftMargin = 20;
+            const pageWidth = 210;
+            const contentWidth = pageWidth - 40;
+
+            // Header
+            doc.setFontSize(24);
+            doc.setTextColor(...textColor);
+            doc.text('BO&BO', leftMargin, y);
+            doc.setFontSize(10);
+            doc.setTextColor(...lightGray);
+            doc.text('Hard Drive Calculator', leftMargin + 35, y);
+
+            y += 5;
+            doc.setDrawColor(...accentColor);
+            doc.setLineWidth(0.5);
+            doc.line(leftMargin, y, pageWidth - leftMargin, y);
+
+            y += 15;
+
+            // Date
+            doc.setFontSize(9);
+            doc.setTextColor(...lightGray);
+            doc.text('Generated: ' + new Date().toLocaleDateString('en-US', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            }), leftMargin, y);
+
+            y += 15;
+
+            // Camera Setup Section
+            doc.setFontSize(14);
+            doc.setTextColor(...accentColor);
+            doc.text('Camera Setup', leftMargin, y);
+            y += 8;
+
+            doc.setFontSize(10);
+            doc.setTextColor(...textColor);
+
+            // A CAM
+            if (!document.getElementById('acam-section').classList.contains('disabled')) {
+                const acamDays = document.getElementById('acam-days').value;
+                const acamHours = document.getElementById('acam-hours').value;
+                const acamContainer = document.getElementById('acam-camera-container');
+                const cameraCards = acamContainer.querySelectorAll('.camera-card');
+
+                doc.setFontSize(11);
+                doc.text('A CAM', leftMargin, y);
+                y += 6;
+                doc.setFontSize(9);
+                doc.setTextColor(...lightGray);
+                doc.text(`${acamDays} shooting days, ${acamHours} hours/day`, leftMargin + 5, y);
+                y += 5;
+
+                cameraCards.forEach((card, idx) => {
+                    const brand = card.querySelector('[id^="acam-brand"]')?.value || 'N/A';
+                    const model = card.querySelector('[id^="acam-model"]')?.value || 'N/A';
+                    const codec = card.querySelector('[id^="acam-codec"]')?.value || 'N/A';
+                    const resolution = card.querySelector('[id^="acam-resolution"]')?.value || 'N/A';
+                    const fps = card.querySelector('[id^="acam-fps"]')?.value || '24';
+
+                    doc.text(`Camera ${idx + 1}: ${brand} ${model}`, leftMargin + 5, y);
+                    y += 4;
+                    doc.text(`Codec: ${codec}, Resolution: ${resolution}, FPS: ${fps}`, leftMargin + 10, y);
+                    y += 6;
+                });
+            }
+
+            // B CAM
+            if (!document.getElementById('bcam-section').classList.contains('disabled')) {
+                const bcamDays = document.getElementById('bcam-days').value;
+                const bcamHours = document.getElementById('bcam-hours').value;
+
+                doc.setFontSize(11);
+                doc.setTextColor(...textColor);
+                doc.text('B CAM', leftMargin, y);
+                y += 6;
+                doc.setFontSize(9);
+                doc.setTextColor(...lightGray);
+                doc.text(`${bcamDays} shooting days, ${bcamHours} hours/day`, leftMargin + 5, y);
+                y += 8;
+            }
+
+            y += 5;
+
+            // Drive Configuration Section
+            doc.setFontSize(14);
+            doc.setTextColor(...accentColor);
+            doc.text('Drive Configuration', leftMargin, y);
+            y += 8;
+
+            doc.setFontSize(10);
+            doc.setTextColor(...textColor);
+
+            // Get selected options
+            const selectedBay = document.querySelector('.bay-option.active .bay-label')?.textContent || 'N/A';
+            const selectedDriveType = document.querySelector('.drive-type-option.active .drive-type-label')?.textContent.replace('\n', ' ') || 'N/A';
+            const selectedRaid = document.querySelector('.raid-option.active .raid-label')?.textContent || 'N/A';
+            const driveCapacity = document.getElementById('drive-capacity-value')?.textContent || 'N/A';
+
+            doc.text(`Enclosure: ${selectedBay}`, leftMargin, y);
+            y += 6;
+            doc.text(`Drive Type: ${selectedDriveType}`, leftMargin, y);
+            y += 6;
+            doc.text(`RAID Configuration: ${selectedRaid}`, leftMargin, y);
+            y += 6;
+            doc.text(`Drive Capacity: ${driveCapacity}`, leftMargin, y);
+            y += 15;
+
+            // Results Section
+            doc.setFontSize(14);
+            doc.setTextColor(...accentColor);
+            doc.text('Storage Requirements', leftMargin, y);
+            y += 8;
+
+            doc.setFontSize(10);
+            doc.setTextColor(...textColor);
+
+            const totalStorage = document.getElementById('total-storage')?.textContent || '0';
+            const storageUnit = document.getElementById('storage-unit')?.textContent || 'TB';
+            const drivesNeeded = document.getElementById('drives-needed')?.textContent || '0';
+            const usableCapacity = document.getElementById('usable-capacity')?.textContent || '0';
+            const capacityUnit = document.getElementById('capacity-unit')?.textContent || 'TB';
+
+            doc.setFontSize(12);
+            doc.text(`Total Storage Needed: ${totalStorage} ${storageUnit}`, leftMargin, y);
+            y += 7;
+            doc.text(`Drives Required: ${drivesNeeded}`, leftMargin, y);
+            y += 7;
+            doc.text(`Usable Capacity: ${usableCapacity} ${capacityUnit}`, leftMargin, y);
+            y += 12;
+
+            // Price Estimate
+            doc.setFontSize(14);
+            doc.setTextColor(...accentColor);
+            doc.text('Price Estimate', leftMargin, y);
+            y += 8;
+
+            doc.setFontSize(10);
+            doc.setTextColor(...textColor);
+
+            const drivePrice = document.getElementById('drive-price')?.textContent || '€0';
+            const enclosurePrice = document.getElementById('enclosure-price')?.textContent || '€0';
+            const totalPrice = document.getElementById('total-price')?.textContent || '€0';
+
+            doc.text(`Drives: ${drivePrice}`, leftMargin, y);
+            y += 6;
+            doc.text(`Enclosure: ${enclosurePrice}`, leftMargin, y);
+            y += 6;
+            doc.setFontSize(12);
+            doc.text(`Total: ${totalPrice}`, leftMargin, y);
+            y += 12;
+
+            // Transfer Time
+            doc.setFontSize(14);
+            doc.setTextColor(...accentColor);
+            doc.text('Transfer Time Estimate', leftMargin, y);
+            y += 8;
+
+            doc.setFontSize(10);
+            doc.setTextColor(...textColor);
+
+            const dailyTransfer = document.getElementById('daily-transfer')?.textContent || '0';
+            const totalTransfer = document.getElementById('total-transfer')?.textContent || '0';
+            const effectiveSpeed = document.getElementById('effective-speed')?.textContent || '0';
+
+            doc.text(`Daily Transfer: ${dailyTransfer}`, leftMargin, y);
+            y += 6;
+            doc.text(`Total Project Transfer: ${totalTransfer}`, leftMargin, y);
+            y += 6;
+            doc.text(`Effective Speed: ${effectiveSpeed}`, leftMargin, y);
+            y += 20;
+
+            // Footer
+            doc.setFontSize(8);
+            doc.setTextColor(...lightGray);
+            doc.text('This is an estimate only. Actual requirements may vary based on shooting conditions.', leftMargin, y);
+            y += 4;
+            doc.text('Generated by BO&BO Hard Drive Calculator - bobodit.com', leftMargin, y);
+
+            // Save the PDF
+            const date = new Date().toISOString().split('T')[0];
+            doc.save(`BOBO_Storage_Estimate_${date}.pdf`);
+        }
     </script>
 </body>
 </html>
