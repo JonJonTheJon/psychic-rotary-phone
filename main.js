@@ -152,13 +152,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             selectedLetters.forEach(letter => {
-                // Random transform values - 20% more distortion
-                const x = (Math.random() - 0.5) * 9.6;
-                const y = (Math.random() - 0.5) * 6;
-                const skew = (Math.random() - 0.5) * 7.2;
-                const scaleX = 0.964 + Math.random() * 0.072;
-                const scaleY = 0.976 + Math.random() * 0.048;
-                const rotation = (Math.random() - 0.5) * 1.8;
+                // Random transform values - much more noticeable distortion
+                const x = (Math.random() - 0.5) * 30;
+                const y = (Math.random() - 0.5) * 20;
+                const skew = (Math.random() - 0.5) * 18;
+                const scaleX = 0.9 + Math.random() * 0.2;
+                const scaleY = 0.92 + Math.random() * 0.16;
+                const rotation = (Math.random() - 0.5) * 6;
 
                 // Apply glitch transform with slower transition
                 letter.style.transition = 'transform 0.27s ease-out, opacity 0.27s ease-out';
