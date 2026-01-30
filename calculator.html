@@ -1184,7 +1184,7 @@
             color: var(--accent-light);
         }
 
-        /* Responsive */
+        /* Responsive - Tablet */
         @media (max-width: 768px) {
             .calculator-page {
                 padding: calc(70px + var(--space-lg)) var(--space-md) var(--space-lg);
@@ -1202,6 +1202,215 @@
                 flex-direction: column;
                 align-items: flex-start;
                 gap: var(--space-sm);
+            }
+        }
+
+        /* Responsive - Mobile */
+        @media (max-width: 480px) {
+            .calculator-page {
+                padding: calc(70px + var(--space-md)) var(--space-sm) var(--space-lg);
+            }
+
+            .calculator-header {
+                flex-direction: column;
+                gap: var(--space-md);
+            }
+
+            .page-logo-svg {
+                height: 60px !important;
+                width: auto;
+            }
+
+            .calculator-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .calculator-header p {
+                font-size: 0.95rem;
+            }
+
+            .calculator-header .disclaimer {
+                font-size: 0.8rem;
+                padding: var(--space-sm);
+            }
+
+            /* Bay options - 3 per row on mobile */
+            .bay-options {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: var(--space-sm);
+            }
+
+            .bay-option {
+                min-width: unset;
+                padding: var(--space-sm);
+            }
+
+            .bay-icon {
+                width: 36px;
+                height: 36px;
+            }
+
+            .bay-label {
+                font-size: 0.7rem;
+            }
+
+            /* Drive type - 2 per row on mobile */
+            .drive-type-options {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--space-sm);
+            }
+
+            .drive-type-option {
+                min-width: unset;
+                padding: var(--space-sm);
+            }
+
+            .drive-icon {
+                width: 32px;
+                height: 32px;
+            }
+
+            .drive-type-label {
+                font-size: 0.65rem;
+            }
+
+            .drive-type-speed {
+                font-size: 0.6rem;
+            }
+
+            /* RAID options - 2 per row on mobile */
+            .raid-options {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--space-sm);
+            }
+
+            .raid-option {
+                min-width: unset;
+                padding: var(--space-sm);
+            }
+
+            .raid-icon {
+                width: 36px;
+                height: 28px;
+            }
+
+            .raid-label {
+                font-size: 0.7rem;
+            }
+
+            .raid-usable {
+                font-size: 0.6rem;
+            }
+
+            /* Sliders - bigger touch targets */
+            .slider-input::-webkit-slider-thumb {
+                width: 28px;
+                height: 28px;
+            }
+
+            .slider-input::-moz-range-thumb {
+                width: 28px;
+                height: 28px;
+            }
+
+            /* Section headers */
+            .calc-section-header {
+                padding: var(--space-sm) var(--space-md);
+            }
+
+            .calc-section-content {
+                padding: 0 var(--space-md) var(--space-md);
+            }
+
+            /* Camera section */
+            .camera-section-header {
+                padding: var(--space-sm);
+                flex-wrap: wrap;
+            }
+
+            .camera-section-title h3 {
+                font-size: 0.9rem;
+            }
+
+            .camera-section-badge {
+                font-size: 0.55rem;
+                padding: 2px 6px;
+            }
+
+            /* Saved configs - stack vertically */
+            .saved-configs-slots {
+                flex-direction: column;
+            }
+
+            .config-slot {
+                flex-direction: row;
+                justify-content: space-between;
+                min-width: unset;
+                width: 100%;
+            }
+
+            /* Results */
+            .results-grid {
+                grid-template-columns: 1fr;
+                gap: var(--space-md);
+            }
+
+            .result-value {
+                font-size: 1.75rem;
+            }
+
+            /* Transfer breakdown */
+            .transfer-breakdown {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            /* Price estimate */
+            .price-grid {
+                grid-template-columns: 1fr;
+            }
+
+            /* Form inputs - larger touch targets */
+            .form-group select,
+            .form-group input {
+                padding: 14px 16px;
+                font-size: 16px; /* Prevents iOS zoom */
+            }
+
+            /* Shooting params */
+            .shooting-params {
+                grid-template-columns: 1fr;
+                gap: var(--space-sm);
+            }
+
+            /* Back link */
+            .back-link {
+                font-size: 0.9rem;
+            }
+
+            /* Drive example */
+            .drive-example {
+                padding: var(--space-sm);
+            }
+
+            .drive-example-text {
+                font-size: 0.8rem;
+            }
+
+            /* Speed info */
+            .speed-info {
+                flex-direction: column;
+                text-align: center;
+                gap: var(--space-xs);
+            }
+
+            /* Price direction indicator */
+            .price-direction {
+                display: block;
+                margin-left: 0;
+                margin-top: var(--space-xs);
             }
         }
 

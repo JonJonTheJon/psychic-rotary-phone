@@ -1157,7 +1157,9 @@ main.landing {
     border-radius: 0 0 12px 12px;
 }
 
-.work-hero-image:hover .work-image-overlay {
+/* Show on hover (desktop) or when visible class is added (mobile/auto) */
+.work-hero-image:hover .work-image-overlay,
+.work-image-overlay.visible {
     opacity: 1;
 }
 
@@ -2634,6 +2636,12 @@ footer {
     }
 
     .nav-links a {
+        font-size: 1.5rem;
+        font-weight: 500;
+    }
+
+    /* Calculator link same size as other nav links on mobile */
+    .nav-links .nav-tool-link {
         font-size: 1.5rem;
         font-weight: 500;
     }

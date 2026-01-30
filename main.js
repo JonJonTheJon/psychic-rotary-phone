@@ -573,6 +573,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const yearEl = overlay?.querySelector('.work-image-year');
 
     let currentIndex = Math.floor(Math.random() * workImages.length);
+    let overlayTimeout = null;
+
+    // Show overlay briefly then fade
+    function showOverlayBriefly() {
+        if (!overlay) return;
+        overlay.classList.add('visible');
+
+        // Clear any existing timeout
+        if (overlayTimeout) clearTimeout(overlayTimeout);
+
+        // Hide after 3 seconds
+        overlayTimeout = setTimeout(() => {
+            overlay.classList.remove('visible');
+        }, 3000);
+    }
 
     function showImage(index) {
         workImages.forEach(img => img.classList.remove('active'));
@@ -586,6 +601,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (yearEl && currentImg.dataset.year) {
             yearEl.textContent = currentImg.dataset.year;
         }
+
+        // Show overlay briefly when image changes
+        showOverlayBriefly();
     }
 
     function nextImage() {
@@ -754,7 +772,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!projectsGrid) return;
 
     try {
-        const response = await fetch('/data/movies.json');
+        const response = await fetch('data/movies.json');
         const movies = await response.json();
 
         // Sort by year descending (latest first)
