@@ -318,7 +318,7 @@ main.landing {
 
 .hero-logo-overlay .hero-logo-svg {
     display: block;
-    height: 100%;
+    height: 130%;
     width: auto;
     mix-blend-mode: difference;
 }
@@ -1297,6 +1297,19 @@ main.landing {
 
 .hero-caption .accent {
     color: var(--accent);
+    font-style: italic;
+    position: relative;
+}
+
+.hero-caption .accent::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0.1em;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
+    opacity: 0.6;
 }
 
 /* ========================================
@@ -2668,7 +2681,8 @@ footer {
     }
 
     .hero-logo-overlay .hero-logo-svg {
-        width: clamp(150px, 50vw, 280px);
+        width: clamp(195px, 65vw, 364px);
+        height: auto;
     }
 
     .hero-caption {
