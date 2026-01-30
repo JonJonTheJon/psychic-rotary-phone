@@ -1,0 +1,3080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Drive Planner - Calculate storage requirements for your film production based on camera specs, shooting days, and drive configuration. Free tool by BO&BO.">
+    <meta name="keywords" content="storage calculator, film production, drive planner, DIT tools, camera storage, RAID calculator">
+    <meta name="author" content="BO&BO">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Drive Planner | BO&BO">
+    <meta property="og:description" content="Calculate storage requirements for your film production based on camera specs and shooting days.">
+
+    <!-- Security -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:;">
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#1a1f1c">
+
+    <title>Drive Planner | BO&BO</title>
+
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+
+    <!-- Fonts & Styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Calculator-specific styles */
+        .calculator-page {
+            min-height: 100vh;
+            padding: calc(80px + var(--space-xl)) var(--grid-margin) var(--space-xl);
+        }
+
+        .calculator-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .calculator-header {
+            margin-bottom: var(--space-xl);
+            display: flex;
+            flex-direction: row;
+            gap: var(--space-xl);
+            align-items: flex-start;
+        }
+
+        .page-logo {
+            flex-shrink: 0;
+        }
+
+        .page-logo-svg {
+            width: auto;
+            display: block;
+            color: var(--text-primary);
+            animation: logo-breathe 8s ease-in-out infinite;
+        }
+
+        @keyframes logo-breathe {
+            0%, 100% {
+                transform: scale(1);
+                filter: brightness(1);
+            }
+            50% {
+                transform: scale(1.02);
+                filter: brightness(1.1);
+            }
+        }
+
+        .header-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .calculator-header h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 600;
+            margin: 0 0 var(--space-sm) 0;
+            color: var(--text-primary);
+        }
+
+        .calculator-header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 0 var(--space-sm) 0;
+        }
+
+        .calculator-header .disclaimer {
+            margin-top: var(--space-sm);
+            padding: var(--space-md);
+            background: rgba(212, 132, 90, 0.1);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 8px 8px 0;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .calculator-header .disclaimer strong {
+            color: var(--accent);
+        }
+
+        @media (max-width: 600px) {
+            .calculator-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .page-logo-svg {
+                height: 80px;
+                width: auto;
+            }
+        }
+
+        .calc-section {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: var(--space-md);
+            overflow: hidden;
+        }
+
+        .calc-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md) var(--space-lg);
+            cursor: pointer;
+            transition: background 0.2s ease;
+            user-select: none;
+        }
+
+        .calc-section-header:hover {
+            background: rgba(212, 132, 90, 0.05);
+        }
+
+        .calc-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            margin: 0;
+        }
+
+        .calc-section-collapse {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        .collapse-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        .collapse-icon svg {
+            width: 12px;
+            height: 12px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .calc-section.collapsed .collapse-icon {
+            transform: rotate(-90deg);
+        }
+
+        .calc-section-content {
+            padding: 0 var(--space-lg) var(--space-lg);
+            transition: all 0.3s ease;
+        }
+
+        .calc-section.collapsed .calc-section-content {
+            display: none;
+        }
+
+        /* Results section - not collapsible, different styling */
+        .results-section .calc-section-header {
+            cursor: default;
+        }
+
+        .results-section .calc-section-header:hover {
+            background: transparent;
+        }
+
+        .results-section .calc-section-collapse {
+            display: none;
+        }
+
+        .results-section .calc-section-content {
+            padding-top: 0;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xs);
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-group select,
+        .form-group input {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-family: var(--font-main);
+            font-size: 1rem;
+            color: var(--text-primary);
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .form-group select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23b8b3a8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
+        }
+
+        .form-group input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        .form-group input[type="number"]::-webkit-outer-spin-button,
+        .form-group input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Camera Section Tabs */
+        .camera-sections {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        .camera-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .camera-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md);
+            background: rgba(212, 132, 90, 0.1);
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .camera-section-header:hover {
+            background: rgba(212, 132, 90, 0.15);
+        }
+
+        .camera-section.disabled .camera-section-header {
+            background: var(--bg-secondary);
+            opacity: 0.6;
+        }
+
+        .camera-section-title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .camera-section-title h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin: 0;
+        }
+
+        .camera-section.disabled .camera-section-title h3 {
+            color: var(--text-tertiary);
+        }
+
+        .camera-section-badge {
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-radius: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .camera-section.disabled .camera-section-badge {
+            background: var(--text-tertiary);
+        }
+
+        .camera-section-toggle {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .toggle-switch.active {
+            background: var(--accent);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: var(--text-primary);
+            border-radius: 50%;
+            transition: transform 0.2s ease;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(20px);
+            background: var(--bg-primary);
+        }
+
+        .camera-section-content {
+            padding: var(--space-md);
+        }
+
+        .camera-section.disabled .camera-section-content {
+            display: none;
+        }
+
+        /* Camera Cards */
+        .cameras-container {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        .camera-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: var(--space-md);
+        }
+
+        .camera-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-md);
+        }
+
+        .camera-card-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .remove-camera-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-tertiary);
+            padding: 6px 12px;
+            font-family: var(--font-main);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .remove-camera-btn:hover {
+            border-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        .add-camera-btn {
+            background: transparent;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            padding: var(--space-md);
+            font-family: var(--font-main);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .add-camera-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Drone Section */
+        .drone-section .camera-section-header {
+            background: rgba(100, 149, 237, 0.1);
+        }
+
+        .drone-section .camera-section-header:hover {
+            background: rgba(100, 149, 237, 0.15);
+        }
+
+        .drone-section .camera-section-title h3 {
+            color: #6495ed;
+        }
+
+        .drone-section .camera-section-badge {
+            background: #6495ed;
+        }
+
+        .drone-section.disabled .camera-section-title h3 {
+            color: var(--text-tertiary);
+        }
+
+        .drone-section.disabled .camera-section-badge {
+            background: var(--text-tertiary);
+        }
+
+        /* Shooting params row */
+        .shooting-params {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
+            padding-bottom: var(--space-md);
+            border-bottom: 1px solid var(--border);
+        }
+
+        @media (max-width: 480px) {
+            .shooting-params {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Drive Bay Selector */
+        .bay-selector {
+            margin-bottom: var(--space-lg);
+        }
+
+        .bay-selector-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-sm);
+            display: block;
+        }
+
+        .bay-options {
+            display: flex;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+        }
+
+        .bay-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: var(--space-md);
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 80px;
+        }
+
+        .bay-option:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .bay-option.active {
+            border-color: var(--accent);
+            background: rgba(212, 132, 90, 0.15);
+        }
+
+        .bay-option input {
+            display: none;
+        }
+
+        .bay-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .bay-icon .drive-slot {
+            background: var(--text-tertiary);
+            border-radius: 2px;
+            transition: background 0.2s ease;
+        }
+
+        .bay-option.active .drive-slot {
+            background: var(--accent);
+        }
+
+        .bay-option:hover .drive-slot {
+            background: var(--accent);
+        }
+
+        /* Different bay configurations */
+        .bay-icon.bay-1 .drive-slot { width: 40px; height: 8px; }
+
+        .bay-icon.bay-2 { gap: 4px; }
+        .bay-icon.bay-2 .drive-slot { width: 40px; height: 7px; }
+
+        .bay-icon.bay-4 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3px;
+        }
+        .bay-icon.bay-4 .drive-slot { width: 18px; height: 10px; }
+
+        .bay-icon.bay-6 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+        }
+        .bay-icon.bay-6 .drive-slot { width: 12px; height: 10px; }
+
+        .bay-icon.bay-12 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2px;
+        }
+        .bay-icon.bay-12 .drive-slot { width: 9px; height: 8px; }
+
+        .bay-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: color 0.2s ease;
+        }
+
+        .bay-option.active .bay-label {
+            color: var(--accent);
+        }
+
+        /* Drive Example */
+        .drive-example {
+            margin-top: var(--space-md);
+            padding: var(--space-md);
+            background: rgba(212, 132, 90, 0.08);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent);
+        }
+
+        .drive-example-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-tertiary);
+            margin-bottom: 4px;
+        }
+
+        .drive-example-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .drive-example-text strong {
+            color: var(--accent);
+        }
+
+        /* Drive Speed Result */
+        .drive-speed-result {
+            margin-top: var(--space-md);
+            padding-top: var(--space-md);
+            border-top: 1px solid var(--border);
+        }
+
+        .speed-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(212, 132, 90, 0.1);
+            padding: var(--space-md);
+            border-radius: 8px;
+        }
+
+        .speed-info-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .speed-info-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        /* Price direction indicator */
+        .price-direction {
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: var(--text-tertiary);
+            font-style: italic;
+            margin-left: var(--space-sm);
+        }
+
+        /* Saved Configurations */
+        .saved-configs {
+            margin-bottom: var(--space-lg);
+            padding: var(--space-md);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .saved-configs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-md);
+        }
+
+        .saved-configs-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .saved-configs-slots {
+            display: flex;
+            gap: var(--space-sm);
+        }
+
+        .config-slot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: var(--space-sm) var(--space-md);
+            background: var(--bg-elevated);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 80px;
+        }
+
+        .config-slot:hover {
+            border-color: var(--accent);
+        }
+
+        .config-slot.has-config {
+            border-color: var(--accent);
+            background: rgba(212, 132, 90, 0.1);
+        }
+
+        .config-slot-icon {
+            font-size: 1.2rem;
+        }
+
+        .config-slot-label {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            text-align: center;
+        }
+
+        .config-slot.has-config .config-slot-label {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .config-actions {
+            display: flex;
+            gap: var(--space-xs);
+            margin-top: 4px;
+        }
+
+        .config-action-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 0.65rem;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .config-action-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .config-action-btn.delete:hover {
+            border-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        /* Drive Type Selector */
+        .drive-type-selector {
+            margin-bottom: var(--space-lg);
+        }
+
+        .drive-type-options {
+            display: flex;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+        }
+
+        .drive-type-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: var(--space-md) var(--space-sm);
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 90px;
+            flex: 1;
+        }
+
+        .drive-type-option:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .drive-type-option.active {
+            border-color: var(--accent);
+            background: rgba(212, 132, 90, 0.15);
+        }
+
+        .drive-type-option input {
+            display: none;
+        }
+
+        .drive-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .drive-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: var(--text-tertiary);
+            transition: fill 0.2s ease;
+        }
+
+        .drive-type-option.active .drive-icon svg,
+        .drive-type-option:hover .drive-icon svg {
+            fill: var(--accent);
+        }
+
+        .drive-type-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .drive-type-speed {
+            font-size: 0.65rem;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .drive-type-option.active .drive-type-label {
+            color: var(--accent);
+        }
+
+        .drive-type-option.active .drive-type-speed {
+            color: var(--accent);
+            opacity: 0.8;
+        }
+
+        /* RAID Selector */
+        .raid-selector {
+            margin-bottom: var(--space-lg);
+        }
+
+        .raid-options {
+            display: flex;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+        }
+
+        .raid-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: var(--space-md) var(--space-sm);
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 85px;
+            flex: 1;
+        }
+
+        .raid-option:hover:not(.disabled) {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .raid-option.active {
+            border-color: var(--accent);
+            background: rgba(212, 132, 90, 0.15);
+        }
+
+        .raid-option.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .raid-option input {
+            display: none;
+        }
+
+        .raid-icon {
+            width: 44px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .raid-drive {
+            width: 10px;
+            height: 24px;
+            background: var(--text-tertiary);
+            border-radius: 2px;
+            position: relative;
+            transition: background 0.2s ease;
+        }
+
+        .raid-option.active .raid-drive,
+        .raid-option:hover:not(.disabled) .raid-drive {
+            background: var(--accent);
+        }
+
+        .raid-drive.parity {
+            background: var(--text-tertiary);
+            opacity: 0.5;
+        }
+
+        .raid-option.active .raid-drive.parity,
+        .raid-option:hover:not(.disabled) .raid-drive.parity {
+            background: var(--accent);
+            opacity: 0.5;
+        }
+
+        .raid-drive.stripe::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--bg-secondary);
+            transform: translateY(-50%);
+        }
+
+        .raid-drive.mirror::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+        }
+
+        .raid-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .raid-usable {
+            font-size: 0.65rem;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .raid-option.active .raid-label {
+            color: var(--accent);
+        }
+
+        .raid-option.active .raid-usable {
+            color: var(--accent);
+            opacity: 0.8;
+        }
+
+        /* Sliders */
+        .slider-container {
+            margin-bottom: var(--space-md);
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-sm);
+        }
+
+        .slider-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .slider-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .slider-track {
+            position: relative;
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            margin-bottom: var(--space-xs);
+        }
+
+        .slider-input {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: transparent;
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+        }
+
+        .slider-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: transform 0.2s ease;
+        }
+
+        .slider-input::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .slider-input::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        /* Results Section */
+        .results-section {
+            background: linear-gradient(135deg, var(--bg-elevated) 0%, rgba(212, 132, 90, 0.1) 100%);
+            border: 1px solid var(--accent);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-lg);
+        }
+
+        .result-item {
+            text-align: center;
+        }
+
+        .result-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-xs);
+        }
+
+        .result-value {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .result-unit {
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+        }
+
+        .contingency-note {
+            background: rgba(212, 132, 90, 0.15);
+            border-radius: 8px;
+            padding: var(--space-md);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .contingency-note strong {
+            color: var(--accent);
+        }
+
+        /* Price Estimate */
+        .price-estimate {
+            margin-top: var(--space-lg);
+            padding-top: var(--space-lg);
+            border-top: 1px solid var(--border);
+        }
+
+        .price-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-md);
+            margin-top: var(--space-md);
+        }
+
+        .price-item {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: var(--space-md);
+            text-align: center;
+        }
+
+        .price-item.price-total {
+            background: rgba(212, 132, 90, 0.15);
+            border: 1px solid var(--accent);
+        }
+
+        .price-label {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            margin-bottom: var(--space-xs);
+        }
+
+        .price-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .price-total .price-value {
+            color: var(--accent);
+        }
+
+        .price-note {
+            margin-top: var(--space-md);
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            text-align: center;
+            font-style: italic;
+        }
+
+        @media (max-width: 600px) {
+            .price-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Transfer Time */
+        .transfer-result {
+            margin-top: var(--space-lg);
+            padding-top: var(--space-lg);
+            border-top: 1px solid var(--border);
+        }
+
+        .transfer-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--space-md);
+            margin-top: var(--space-md);
+        }
+
+        .transfer-item {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: var(--space-md);
+            text-align: center;
+        }
+
+        .transfer-item-label {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            margin-bottom: var(--space-xs);
+        }
+
+        .transfer-item-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Back Link */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: var(--space-lg);
+            transition: color 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: var(--accent-light);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .calculator-page {
+                padding: calc(70px + var(--space-lg)) var(--space-md) var(--space-lg);
+            }
+
+            .calc-section {
+                padding: var(--space-md);
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .camera-card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--space-sm);
+            }
+        }
+
+        /* ========================================
+           LIGHT MODE (B&W) STYLES
+           ======================================== */
+        body.light-mode {
+            --bg-primary: #f7f4ef;
+            --bg-secondary: #ebe7e0;
+            --bg-elevated: #fdfcfa;
+            --text-primary: #1a1a1a;
+            --text-secondary: #4a4a4a;
+            --text-tertiary: #6a6a6a;
+            --accent: #1a1a1a;
+            --accent-light: #4a4a4a;
+            --border: rgba(0, 0, 0, 0.12);
+            --border-strong: rgba(0, 0, 0, 0.25);
+        }
+
+        body.light-mode header {
+            background: var(--bg-primary);
+        }
+
+        body.light-mode .logo-text {
+            color: var(--text-primary);
+        }
+
+        body.light-mode .nav-links a {
+            color: var(--text-primary);
+        }
+
+        body.light-mode .theme-toggle {
+            color: var(--text-primary);
+        }
+
+        body.light-mode .back-link {
+            color: var(--text-primary);
+        }
+
+        body.light-mode .calc-section {
+            background: var(--bg-elevated);
+            border-color: var(--border);
+        }
+
+        body.light-mode .calc-section-title {
+            color: var(--text-primary);
+        }
+
+        body.light-mode .camera-card {
+            background: var(--bg-secondary);
+            border-color: var(--border);
+        }
+
+        body.light-mode .camera-card-title {
+            color: var(--text-primary);
+        }
+
+        body.light-mode .form-group select,
+        body.light-mode .form-group input {
+            background-color: #fff;
+            border-color: var(--border);
+            color: var(--text-primary);
+        }
+
+        body.light-mode .form-group select {
+            background-color: #fff;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231a1a1a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+        }
+
+        body.light-mode .slider-input::-webkit-slider-thumb {
+            background: var(--text-primary);
+        }
+
+        body.light-mode .slider-input::-moz-range-thumb {
+            background: var(--text-primary);
+        }
+
+        body.light-mode .slider-value {
+            color: var(--text-primary);
+        }
+
+        body.light-mode .results-section {
+            background: linear-gradient(135deg, var(--bg-elevated) 0%, rgba(0, 0, 0, 0.05) 100%);
+            border-color: var(--text-primary);
+        }
+
+        body.light-mode .contingency-note {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        body.light-mode .contingency-note strong {
+            color: var(--text-primary);
+        }
+
+        body.light-mode .transfer-item {
+            background: var(--bg-secondary);
+        }
+
+        body.light-mode .add-camera-btn {
+            border-color: var(--border);
+            color: var(--text-secondary);
+        }
+
+        body.light-mode .add-camera-btn:hover {
+            border-color: var(--text-primary);
+            color: var(--text-primary);
+        }
+
+        body.light-mode .remove-camera-btn:hover {
+            border-color: #c0392b;
+            color: #c0392b;
+        }
+
+        body.light-mode #noise-canvas {
+            opacity: 0.04;
+            filter: invert(1);
+        }
+
+        body.light-mode .bay-option {
+            background: #fff;
+            border-color: var(--border);
+        }
+
+        body.light-mode .bay-option.active {
+            border-color: var(--text-primary);
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        body.light-mode .bay-option:hover {
+            border-color: var(--text-primary);
+        }
+
+        body.light-mode .drive-slot {
+            background: var(--text-tertiary);
+        }
+
+        body.light-mode .bay-option.active .drive-slot,
+        body.light-mode .bay-option:hover .drive-slot {
+            background: var(--text-primary);
+        }
+
+        body.light-mode .bay-option.active .bay-label {
+            color: var(--text-primary);
+        }
+
+        body.light-mode .drive-example {
+            background: rgba(0, 0, 0, 0.03);
+            border-left-color: var(--text-primary);
+        }
+
+        body.light-mode .drive-example-text strong {
+            color: var(--text-primary);
+        }
+
+        body.light-mode .speed-info {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        body.light-mode .speed-info-value {
+            color: var(--text-primary);
+        }
+
+        body.light-mode .drive-type-option {
+            background: #fff;
+            border-color: var(--border);
+        }
+
+        body.light-mode .drive-type-option.active {
+            border-color: var(--text-primary);
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        body.light-mode .drive-type-option:hover {
+            border-color: var(--text-primary);
+        }
+
+        body.light-mode .drive-icon svg {
+            fill: var(--text-tertiary);
+        }
+
+        body.light-mode .drive-type-option.active .drive-icon svg,
+        body.light-mode .drive-type-option:hover .drive-icon svg {
+            fill: var(--text-primary);
+        }
+
+        body.light-mode .drive-type-option.active .drive-type-label,
+        body.light-mode .drive-type-option.active .drive-type-speed {
+            color: var(--text-primary);
+        }
+
+        body.light-mode .raid-option {
+            background: #fff;
+            border-color: var(--border);
+        }
+
+        body.light-mode .raid-option.active {
+            border-color: var(--text-primary);
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        body.light-mode .raid-option:hover:not(.disabled) {
+            border-color: var(--text-primary);
+        }
+
+        body.light-mode .raid-drive {
+            background: var(--text-tertiary);
+        }
+
+        body.light-mode .raid-option.active .raid-drive,
+        body.light-mode .raid-option:hover:not(.disabled) .raid-drive {
+            background: var(--text-primary);
+        }
+
+        body.light-mode .raid-option.active .raid-label,
+        body.light-mode .raid-option.active .raid-usable {
+            color: var(--text-primary);
+        }
+
+        /* Light mode collapsible sections */
+        body.light-mode .calc-section-header:hover {
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        body.light-mode .calc-section-title {
+            color: var(--text-primary);
+        }
+
+        body.light-mode .results-section .calc-section-header:hover {
+            background: transparent;
+        }
+
+        /* Light mode camera sections */
+        body.light-mode .camera-section {
+            background: #fff;
+            border-color: var(--border);
+        }
+
+        body.light-mode .camera-section-header {
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        body.light-mode .camera-section-header:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        body.light-mode .camera-section-title h3 {
+            color: var(--text-primary);
+        }
+
+        body.light-mode .camera-section-badge {
+            background: var(--text-primary);
+        }
+
+        body.light-mode .toggle-switch {
+            background: var(--bg-secondary);
+        }
+
+        body.light-mode .toggle-switch.active {
+            background: var(--text-primary);
+        }
+
+        body.light-mode .drone-section .camera-section-header {
+            background: rgba(100, 149, 237, 0.08);
+        }
+
+        body.light-mode .drone-section .camera-section-title h3 {
+            color: #4169e1;
+        }
+
+        body.light-mode .drone-section .camera-section-badge {
+            background: #4169e1;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="noise-canvas"></canvas>
+
+    <div class="container">
+        <!-- Navigation -->
+        <header>
+            <nav>
+                <div class="logo">
+                    <a href="index.html" class="logo-text">THE<br>DIT/VIDEO<br>COMPANY</a>
+                </div>
+                <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle menu">
+                    <span class="burger-line"></span>
+                    <span class="burger-line"></span>
+                </button>
+                <div class="nav-links" id="nav-links">
+                    <a href="index.html">Home</a>
+                    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle black and white mode">
+                        <span class="theme-toggle-text">B&W</span>
+                    </button>
+                </div>
+            </nav>
+        </header>
+
+        <main class="calculator-page">
+            <div class="calculator-container">
+                <a href="index.html" class="back-link">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Back to Home
+                </a>
+
+                <div class="calculator-header">
+                    <div class="page-logo">
+                        <svg class="page-logo-svg" viewBox="0 0 1171.28 1391.68" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="currentColor" d="M354.28,458.04h59.75v5.24h-59.75v-5.24ZM352.19,438.13h55.55l2.08,5.24h-56.59l-1.05-5.24ZM352.19,479.01h64.98v5.23h-66.03l1.05-5.23ZM397.25,417.17l3.15,5.24h-53.46l-3.15-5.24h53.46ZM344.84,499.97h71.27l-2.1,5.24h-72.32l3.15-5.24ZM336.45,209.63h55.55v5.24h-55.55v-5.24ZM335.41,230.59h53.46l-2.1,5.24h-53.46l2.1-5.24ZM333.31,188.67h58.7v5.23h-57.65l-1.05-5.23ZM384.67,396.21l4.19,5.23h-54.51l-5.23-5.23h55.54ZM330.16,251.55h51.37l-3.15,5.24h-51.36l3.13-5.24ZM330.16,520.93h80.71l-2.1,5.24h-83.84l5.23-5.24ZM324.93,168.75h64.98v4.19h-62.88l-2.1-4.19ZM317.59,271.47h52.41l-4.19,5.24h-53.46l5.24-5.24ZM310.25,147.79h72.33l2.08,5.24h-69.17l-5.24-5.24ZM365.8,375.23l5.24,5.24h-57.65l-8.39-5.24h60.8ZM301.87,541.89h99.57l-2.1,4.19h-105.86l8.39-4.19ZM296.63,292.44h56.6l-6.29,5.24h-56.6l6.29-5.24ZM373.15,126.83l2.1,5.24h-83.85l-11.54-5.24h93.29ZM246.32,512.54c35.63,0,58.69-20.96,58.69-54.51,0-30.39-23.06-55.54-58.69-55.54h-93.29v110.05h93.29ZM226.4,271.47c35.64,0,60.8-24.11,60.8-58.69,0-32.5-25.16-57.65-60.8-57.65h-73.37v116.34h73.37ZM114.25,603.74h207.53l-44.02,5.24H114.25v-5.24ZM114.25,582.78h252.6l-7.34,5.23H114.25v-5.23ZM114.25,561.81h274.61l-5.24,5.24H114.25v-5.24ZM114.25,373.15h132.07c58.69,0,97.47,38.77,97.47,84.89,0,51.36-38.79,83.85-97.47,83.85H114.25v-168.75ZM114.25,355.32h227.44l5.24,4.19H114.25v-4.19ZM114.25,334.36h198.09l7.34,5.24H114.25v-5.24ZM114.25,313.4h210.68l-7.34,5.24H114.25v-5.24ZM114.25,125.78h112.14c58.7,0,99.59,37.74,99.59,87,0,52.41-40.89,88.04-99.59,88.04h-112.14V125.78ZM114.25,105.87h242.13l4.18,5.24H114.25v-5.24ZM114.25,84.91h218.02l-1.06-1.05,8.39,6.28H114.25v-5.23ZM114.25,64.98h169.79l18.88,5.24H114.25v-5.24ZM277.77,620.5c95.38,0,149.88-66.03,149.88-137.31,0-54.49-29.35-109-101.67-149.88v-8.39c58.69-34.58,77.56-77.56,77.56-127.87,0-81.76-67.09-146.74-149.88-146.74H38.79v570.19h238.98ZM0,20.96h253.66c104.8,0,188.66,77.56,188.66,176.09,0,58.7-24.11,95.39-68.12,128.92v2.1c64.98,46.13,92.23,90.15,92.23,155.13,0,87-69.17,166.66-188.66,166.66H0V20.96ZM1065.41,333.31h56.6v5.24h-56.6v-5.24ZM1064.36,312.35h56.6v5.23h-56.6v-5.23ZM1064.36,354.28h56.6v5.23h-57.65l1.05-5.23ZM1062.27,375.24h57.65l-2.1,5.23h-56.6l1.05-5.23ZM1061.22,291.39h57.65l1.05,5.24h-57.65l-1.05-5.24ZM1058.07,396.2h57.65l-1.05,5.24h-58.7l2.1-5.24ZM1055.97,270.43h58.7l2.1,5.23h-58.7l-2.1-5.23ZM1049.69,249.45h59.75l2.08,5.24h-58.69l-3.15-5.24ZM1040.26,228.51h61.85l2.1,5.23h-60.8l-3.15-5.23ZM1028.73,207.53h64.98l2.1,5.24h-63.94l-3.13-5.24ZM1083.23,186.57l3.15,5.24h-68.12l-5.24-5.24h70.22ZM1070.66,165.61l4.19,5.23h-74.42l-6.29-5.23h76.51ZM1054.94,144.65l5.24,5.23h-83.85l-7.34-5.23h85.95ZM1037.11,123.68l-1.05-1.05,6.29,6.29h-101.67l-11.54-5.24h107.96ZM832.72,40.87l55.55,4.19h-106.91l51.36-4.19ZM725.81,60.8h213.83l13.62,5.23h-241.08l13.63-5.23ZM682.84,81.76h299.76l6.29,5.24h-314.45l8.39-5.24ZM832.72,525.13c111.11,0,182.38-83.85,182.38-189.72s-71.27-189.72-182.38-189.72-182.38,83.85-182.38,189.72,70.22,189.72,182.38,189.72M652.44,102.72h361.61l5.24,5.24h-144.65l-41.92-3.15-38.79,3.15h-149.88l8.39-5.24ZM628.34,123.68h110.06l-13.63,5.24h-101.67l5.24-5.24ZM832.72,116.35c134.17,0,222.21,96.43,222.21,219.06s-88.05,222.21-222.21,222.21-222.2-99.57-222.2-222.21,86.99-219.06,222.2-219.06M608.41,144.65h88.05l-7.34,5.23h-84.89l4.18-5.23ZM593.74,165.61h77.56l-6.29,5.23h-75.47l4.19-5.23ZM580.12,186.57h71.27l-4.19,5.24h-70.22l3.15-5.24ZM569.64,207.53h66.04l-4.19,5.24h-63.94l2.1-5.24ZM561.25,228.51h62.89l-3.15,5.23h-60.8l1.05-5.23ZM554.97,249.45h59.74l-2.1,5.24h-58.69l1.05-5.24ZM548.68,396.2h57.65l2.08,5.24h-57.64l-2.1-5.24ZM549.72,270.43h58.69l-2.08,5.23h-57.65l1.05-5.23ZM545.53,375.24h56.6l2.1,5.23h-57.65l-1.05-5.23ZM546.58,291.39h57.65l-2.1,5.24h-56.6l1.05-5.24ZM543.43,354.28h56.6l1.05,5.23h-56.6l-1.05-5.23ZM543.43,333.31h56.6v5.24h-56.6v-5.24ZM544.48,312.35h56.6l-1.05,5.24h-56.6l1.05-5.24ZM832.72,639.38c173.99,0,299.78-133.12,299.78-303.97S1006.71,29.35,832.72,29.35s-299.78,135.21-299.78,306.06,124.74,303.97,299.78,303.97M832.72,0c198.09,0,338.55,147.78,338.55,335.41s-140.46,335.42-338.55,335.42-338.55-147.8-338.55-335.42S633.57,0,832.72,0M354.28,1178.31h59.75v5.24h-59.75v-5.24ZM352.19,1158.4h55.55l2.08,5.24h-56.59l-1.05-5.24ZM352.19,1199.29h64.98v5.23h-66.03l1.05-5.23ZM397.25,1137.44l3.15,5.24h-53.46l-3.15-5.24h53.46ZM344.84,1220.25h71.27l-2.1,5.23h-72.32l3.15-5.23ZM336.45,929.91h55.55v5.23h-55.55v-5.23ZM335.41,950.87h53.46l-2.1,5.24h-53.46l2.1-5.24ZM333.31,908.95h58.7v5.24h-57.65l-1.05-5.24ZM384.67,1116.48l4.19,5.23h-54.51l-5.23-5.23h55.54ZM330.16,971.83h51.37l-3.15,5.24h-51.36l3.13-5.24ZM330.16,1241.21h80.71l-2.1,5.24h-83.84l5.23-5.24ZM324.93,889.02h64.98v4.19h-62.88l-2.1-4.19ZM317.59,991.75h52.41l-4.19,5.24h-53.46l5.24-5.24ZM310.25,868.06h72.33l2.08,5.24h-69.17l-5.24-5.24ZM365.8,1095.52l5.24,5.24h-57.65l-8.39-5.24h60.8ZM301.87,1262.17h99.57l-2.1,4.19h-105.86l8.39-4.19ZM296.63,1012.71h56.6l-6.29,5.23h-56.6l6.29-5.23ZM373.15,847.1l2.1,5.24h-83.85l-11.54-5.24h93.29ZM246.32,1232.82c35.63,0,58.69-20.96,58.69-54.51,0-30.39-23.06-55.55-58.69-55.55h-93.29v110.06h93.29ZM226.4,991.75c35.64,0,60.8-24.12,60.8-58.7,0-32.5-25.16-57.65-60.8-57.65h-73.37v116.35h73.37ZM114.25,1324.01h207.53l-44.02,5.23H114.25v-5.23ZM114.25,1303.05h252.6l-7.34,5.24H114.25v-5.24ZM114.25,1282.09h274.61l-5.24,5.23H114.25v-5.23ZM114.25,1093.42h132.07c58.69,0,97.47,38.77,97.47,84.89,0,51.37-38.79,83.85-97.47,83.85H114.25v-168.75ZM114.25,1075.61h227.44l5.24,4.18H114.25v-4.18ZM114.25,1054.63h198.09l7.34,5.24H114.25v-5.24ZM114.25,1033.67h210.68l-7.34,5.23H114.25v-5.23ZM114.25,846.05h112.14c58.7,0,99.59,37.74,99.59,87,0,52.39-40.89,88.04-99.59,88.04h-112.14v-175.04ZM114.25,826.14h242.13l4.18,5.23H114.25v-5.23ZM114.25,805.18h218.02l-1.06-1.06,8.39,6.31H114.25v-5.24ZM114.25,785.27h169.79l18.88,5.23H114.25v-5.23ZM277.77,1340.78c95.38,0,149.88-66.03,149.88-137.31,0-54.49-29.35-109.01-101.67-149.88v-8.38c58.69-34.59,77.56-77.58,77.56-127.89,0-81.74-67.09-146.74-149.88-146.74H38.79v570.19h238.98ZM0,741.24h253.66c104.8,0,188.66,77.56,188.66,176.09,0,58.7-24.11,95.39-68.12,128.92v2.1c64.98,46.12,92.23,90.15,92.23,155.13,0,87-69.17,166.66-188.66,166.66H0v-628.89ZM1063.81,1053.59h56.6v5.24h-56.6v-5.24ZM1062.76,1032.62h56.6v5.24h-56.6v-5.24ZM1062.76,1074.54h56.6v5.24h-57.65l1.05-5.24ZM1060.67,1095.51h57.65l-2.1,5.24h-56.6l1.05-5.24ZM1059.62,1011.66h57.65l1.05,5.24h-57.65l-1.05-5.24ZM1056.47,1116.48h57.65l-1.05,5.24h-58.7l2.1-5.24ZM1054.37,990.7h58.7l2.1,5.24h-58.7l-2.1-5.24ZM1048.09,969.74h59.75l2.08,5.24h-58.69l-3.15-5.24ZM1038.66,948.77h61.85l2.1,5.24h-60.8l-3.15-5.24ZM1027.13,927.8h64.98l2.1,5.24h-63.94l-3.13-5.24ZM1081.63,906.84l3.15,5.24h-68.12l-5.24-5.24h70.22ZM1069.06,885.88l4.19,5.24h-74.42l-6.29-5.24h76.51ZM1053.34,864.91l5.23,5.24h-83.84l-7.34-5.24h85.95ZM1035.51,843.95l-1.05-1.05,6.29,6.29h-101.67l-11.54-5.24h107.96ZM831.12,761.14l55.55,4.21h-106.91l51.36-4.21ZM724.21,781.07h213.83l13.62,5.24h-241.08l13.63-5.24ZM681.24,802.03h299.76l6.29,5.24h-314.45l8.39-5.24ZM831.12,1245.4c111.11,0,182.38-83.85,182.38-189.72s-71.27-189.71-182.38-189.71-182.38,83.85-182.38,189.71,70.22,189.72,182.38,189.72M650.84,822.99h361.61l5.24,5.24h-144.65l-41.92-3.15-38.79,3.15h-149.88l8.39-5.24ZM626.72,843.95h110.06l-13.62,5.24h-101.67l5.23-5.24ZM831.12,836.62c134.17,0,222.21,96.43,222.21,219.06s-88.05,222.21-222.21,222.21-222.2-99.59-222.2-222.21,86.99-219.06,222.2-219.06M606.81,864.91h88.05l-7.34,5.24h-84.9l4.19-5.24ZM592.14,885.88h77.56l-6.29,5.24h-75.47l4.19-5.24ZM578.51,906.84h71.28l-4.19,5.24h-70.22l3.13-5.24ZM568.04,927.8h66.04l-4.19,5.24h-63.94l2.1-5.24ZM559.65,948.77h62.89l-3.15,5.24h-60.8l1.05-5.24ZM553.36,969.74h59.75l-2.1,5.24h-58.7l1.05-5.24ZM547.08,1116.48h57.65l2.08,5.24h-57.64l-2.1-5.24ZM548.13,990.7h58.69l-2.08,5.24h-57.65l1.05-5.24ZM543.93,1095.51h56.6l2.08,5.24h-57.64l-1.05-5.24ZM544.98,1011.66h57.64l-2.08,5.24h-56.6l1.05-5.24ZM541.83,1074.54h56.6l1.05,5.24h-56.6l-1.05-5.24ZM541.83,1053.59h56.6v5.24h-56.6v-5.24ZM542.88,1032.62h56.6l-1.05,5.24h-56.6l1.05-5.24ZM831.12,1359.65c173.99,0,299.78-133.12,299.78-303.97s-125.79-306.06-299.78-306.06-299.78,135.21-299.78,306.06,124.74,303.97,299.78,303.97M832.72,720.85c198.09,0,338.55,147.78,338.55,335.41s-140.46,335.42-338.55,335.42-338.55-147.78-338.55-335.42,139.4-335.41,338.55-335.41M494.96,795.26h26.93v1.25h-26.93v-1.25ZM494.96,782.74h26.93v3.13h-26.93v-3.13ZM494.96,770.21h26.93v3.13h-26.93v-3.13ZM494.96,757.69h26.93v3.13h-26.93v-3.13ZM494.96,745.16h26.93v3.13h-26.93v-3.13ZM494.96,732.64h26.93v3.13h-26.93v-3.13ZM494.96,720.11h26.93v3.13h-26.93v-3.13ZM494.96,670.02h26.93v3.13h-26.93v-3.13ZM494.96,657.5h26.93v3.13h-26.93v-3.13ZM494.96,644.97h26.93v3.13h-26.93v-3.13ZM494.96,632.45h26.93v3.13h-26.93v-3.13ZM494.96,619.92h26.93v3.13h-26.93v-3.13ZM494.96,607.41h26.93v3.13h-26.93v-3.13ZM494.96,594.88h26.93v3.13h-26.93v-3.13ZM406.65,707.58h204.15v3.13h-204.15v-3.13ZM406.65,695.07h204.15v3.13h-204.15v-3.13ZM406.65,682.55h204.15v3.13h-204.15v-3.13ZM527.52,802.77v-83.91h88.91v-43.83h-88.91v-86.42h-38.2v86.42h-88.31v43.83h88.31v83.91h38.2ZM466.14,736.4h-88.29v-78.89h88.29v-86.42h84.54v86.42h88.92v78.89h-88.92v83.91h-84.54v-83.91Z"/>
+                        </svg>
+                    </div>
+                    <div class="header-content">
+                        <h1>Drive Planner</h1>
+                        <p>Calculate the storage requirements for your production based on camera specs, shooting days, and desired drive configuration.</p>
+                        <p class="disclaimer"><strong>Note:</strong> This tool provides a preliminary estimate only. Actual storage needs may vary based on shooting conditions, codec settings, and other factors. Always verify your requirements with your D.I.T. or post-production team before committing to a purchase.</p>
+                    </div>
+                </div>
+
+                <!-- Camera Setup Section -->
+                <div class="calc-section" id="camera-setup-section">
+                    <div class="calc-section-header" onclick="toggleCalcSection('camera-setup-section')">
+                        <div class="calc-section-title">Camera Setup</div>
+                        <div class="calc-section-collapse">
+                            <span class="collapse-text">Collapse</span>
+                            <div class="collapse-icon">
+                                <svg viewBox="0 0 12 12"><path d="M2 4l4 4 4-4"/></svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="calc-section-content">
+                    <div class="camera-sections">
+                        <!-- A CAM -->
+                        <div class="camera-section" id="acam-section">
+                            <div class="camera-section-header" onclick="toggleSection('acam')">
+                                <div class="camera-section-title">
+                                    <h3>A CAM</h3>
+                                    <span class="camera-section-badge">Main</span>
+                                </div>
+                                <div class="camera-section-toggle">
+                                    <span>Active</span>
+                                    <div class="toggle-switch active" id="acam-toggle"></div>
+                                </div>
+                            </div>
+                            <div class="camera-section-content">
+                                <div class="shooting-params">
+                                    <div class="form-group">
+                                        <label>Shooting Days</label>
+                                        <input type="number" id="acam-days" min="1" value="10" oninput="calculateStorage()">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Hours / Day</label>
+                                        <input type="number" id="acam-hours" min="0.5" step="0.5" value="4" oninput="calculateStorage()">
+                                    </div>
+                                </div>
+                                <div id="acam-camera-container"></div>
+                            </div>
+                        </div>
+
+                        <!-- B CAM -->
+                        <div class="camera-section disabled" id="bcam-section">
+                            <div class="camera-section-header" onclick="toggleSection('bcam')">
+                                <div class="camera-section-title">
+                                    <h3>B CAM</h3>
+                                    <span class="camera-section-badge">Secondary</span>
+                                </div>
+                                <div class="camera-section-toggle">
+                                    <span>Inactive</span>
+                                    <div class="toggle-switch" id="bcam-toggle"></div>
+                                </div>
+                            </div>
+                            <div class="camera-section-content">
+                                <div class="shooting-params">
+                                    <div class="form-group">
+                                        <label>Shooting Days</label>
+                                        <input type="number" id="bcam-days" min="1" value="10" oninput="calculateStorage()">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Hours / Day</label>
+                                        <input type="number" id="bcam-hours" min="0.5" step="0.5" value="4" oninput="calculateStorage()">
+                                    </div>
+                                </div>
+                                <div id="bcam-camera-container"></div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Cameras -->
+                        <div class="camera-section disabled" id="additional-section">
+                            <div class="camera-section-header" onclick="toggleSection('additional')">
+                                <div class="camera-section-title">
+                                    <h3>Additional Cameras</h3>
+                                    <span class="camera-section-badge">C, D, E...</span>
+                                </div>
+                                <div class="camera-section-toggle">
+                                    <span>Inactive</span>
+                                    <div class="toggle-switch" id="additional-toggle"></div>
+                                </div>
+                            </div>
+                            <div class="camera-section-content">
+                                <div class="cameras-container" id="additional-cameras-container">
+                                    <!-- Additional camera cards will be added here -->
+                                </div>
+                                <button class="add-camera-btn" onclick="addAdditionalCamera()">+ Add Camera</button>
+                            </div>
+                        </div>
+
+                        <!-- Drone Section -->
+                        <div class="camera-section drone-section disabled" id="drone-section">
+                            <div class="camera-section-header" onclick="toggleSection('drone')">
+                                <div class="camera-section-title">
+                                    <h3>Drone / Aerial</h3>
+                                    <span class="camera-section-badge">Aerial</span>
+                                </div>
+                                <div class="camera-section-toggle">
+                                    <span>Inactive</span>
+                                    <div class="toggle-switch" id="drone-toggle"></div>
+                                </div>
+                            </div>
+                            <div class="camera-section-content">
+                                <div class="cameras-container" id="drone-cameras-container">
+                                    <!-- Drone camera cards will be added here -->
+                                </div>
+                                <button class="add-camera-btn" onclick="addDroneCamera()">+ Add Drone</button>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <!-- Drive Configuration Section -->
+                <div class="calc-section" id="drive-config-section">
+                    <div class="calc-section-header" onclick="toggleCalcSection('drive-config-section')">
+                        <div class="calc-section-title">Drive Configuration</div>
+                        <div class="calc-section-collapse">
+                            <span class="collapse-text">Collapse</span>
+                            <div class="collapse-icon">
+                                <svg viewBox="0 0 12 12"><path d="M2 4l4 4 4-4"/></svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="calc-section-content">
+                    <!-- Bay Selector -->
+                    <div class="bay-selector">
+                        <span class="bay-selector-label">Enclosure Size</span>
+                        <div class="bay-options">
+                            <label class="bay-option active" data-bays="1">
+                                <input type="radio" name="bay-count" value="1" checked>
+                                <div class="bay-icon bay-1">
+                                    <div class="drive-slot"></div>
+                                </div>
+                                <span class="bay-label">1 Bay</span>
+                            </label>
+                            <label class="bay-option" data-bays="2">
+                                <input type="radio" name="bay-count" value="2">
+                                <div class="bay-icon bay-2">
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                </div>
+                                <span class="bay-label">2 Bay</span>
+                            </label>
+                            <label class="bay-option" data-bays="4">
+                                <input type="radio" name="bay-count" value="4">
+                                <div class="bay-icon bay-4">
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                </div>
+                                <span class="bay-label">4 Bay</span>
+                            </label>
+                            <label class="bay-option" data-bays="6">
+                                <input type="radio" name="bay-count" value="6">
+                                <div class="bay-icon bay-6">
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                </div>
+                                <span class="bay-label">6 Bay</span>
+                            </label>
+                            <label class="bay-option" data-bays="12">
+                                <input type="radio" name="bay-count" value="12">
+                                <div class="bay-icon bay-12">
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                </div>
+                                <span class="bay-label">12 Bay</span>
+                            </label>
+                        </div>
+
+                        <!-- Drive Example -->
+                        <div class="drive-example">
+                            <div class="drive-example-label">Example products</div>
+                            <div class="drive-example-text" id="drive-example">
+                                <strong>Samsung T5</strong>, SanDisk Extreme Portable, Crucial X6
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Drive Type Selector -->
+                    <div class="drive-type-selector">
+                        <span class="bay-selector-label">Drive Type <span class="price-direction">← Cheaper · More Expensive →</span></span>
+                        <div class="drive-type-options">
+                            <label class="drive-type-option" data-speed="0">
+                                <input type="radio" name="drive-type" value="0">
+                                <div class="drive-icon">
+                                    <svg viewBox="0 0 40 40">
+                                        <rect x="4" y="8" width="32" height="24" rx="2" fill="currentColor"/>
+                                        <circle cx="12" cy="20" r="6" fill="var(--bg-secondary)"/>
+                                        <circle cx="12" cy="20" r="2" fill="currentColor"/>
+                                        <rect x="24" y="14" width="8" height="2" rx="1" fill="var(--bg-secondary)"/>
+                                        <rect x="24" y="18" width="8" height="2" rx="1" fill="var(--bg-secondary)"/>
+                                        <rect x="24" y="22" width="8" height="2" rx="1" fill="var(--bg-secondary)"/>
+                                    </svg>
+                                </div>
+                                <span class="drive-type-label">HDD<br>5400rpm</span>
+                                <span class="drive-type-speed">100 MB/s</span>
+                            </label>
+                            <label class="drive-type-option" data-speed="1">
+                                <input type="radio" name="drive-type" value="1">
+                                <div class="drive-icon">
+                                    <svg viewBox="0 0 40 40">
+                                        <rect x="4" y="8" width="32" height="24" rx="2" fill="currentColor"/>
+                                        <circle cx="12" cy="20" r="6" fill="var(--bg-secondary)"/>
+                                        <circle cx="12" cy="20" r="2" fill="currentColor"/>
+                                        <circle cx="12" cy="20" r="4" fill="none" stroke="var(--bg-secondary)" stroke-width="1"/>
+                                        <rect x="24" y="14" width="8" height="2" rx="1" fill="var(--bg-secondary)"/>
+                                        <rect x="24" y="18" width="8" height="2" rx="1" fill="var(--bg-secondary)"/>
+                                        <rect x="24" y="22" width="8" height="2" rx="1" fill="var(--bg-secondary)"/>
+                                    </svg>
+                                </div>
+                                <span class="drive-type-label">HDD<br>7200rpm</span>
+                                <span class="drive-type-speed">150 MB/s</span>
+                            </label>
+                            <label class="drive-type-option active" data-speed="2">
+                                <input type="radio" name="drive-type" value="2" checked>
+                                <div class="drive-icon">
+                                    <svg viewBox="0 0 40 40">
+                                        <rect x="4" y="10" width="32" height="20" rx="2" fill="currentColor"/>
+                                        <rect x="8" y="14" width="10" height="6" rx="1" fill="var(--bg-secondary)"/>
+                                        <rect x="20" y="14" width="4" height="6" rx="1" fill="var(--bg-secondary)"/>
+                                        <rect x="26" y="14" width="6" height="2" rx="1" fill="var(--bg-secondary)"/>
+                                        <rect x="26" y="18" width="6" height="2" rx="1" fill="var(--bg-secondary)"/>
+                                        <rect x="8" y="24" width="24" height="2" rx="1" fill="var(--bg-secondary)"/>
+                                    </svg>
+                                </div>
+                                <span class="drive-type-label">SSD<br>SATA</span>
+                                <span class="drive-type-speed">550 MB/s</span>
+                            </label>
+                            <label class="drive-type-option" data-speed="3">
+                                <input type="radio" name="drive-type" value="3">
+                                <div class="drive-icon">
+                                    <svg viewBox="0 0 40 40">
+                                        <rect x="2" y="16" width="36" height="8" rx="2" fill="currentColor"/>
+                                        <rect x="6" y="18" width="6" height="4" rx="1" fill="var(--bg-secondary)"/>
+                                        <rect x="14" y="18" width="4" height="4" rx="1" fill="var(--bg-secondary)"/>
+                                        <rect x="20" y="18" width="4" height="4" rx="1" fill="var(--bg-secondary)"/>
+                                        <rect x="26" y="18" width="4" height="4" rx="1" fill="var(--bg-secondary)"/>
+                                        <rect x="32" y="17" width="4" height="6" rx="1" fill="var(--bg-secondary)"/>
+                                    </svg>
+                                </div>
+                                <span class="drive-type-label">NVMe<br>SSD</span>
+                                <span class="drive-type-speed">2,000 MB/s</span>
+                            </label>
+                            <label class="drive-type-option" data-speed="4">
+                                <input type="radio" name="drive-type" value="4">
+                                <div class="drive-icon">
+                                    <svg viewBox="0 0 40 40">
+                                        <rect x="2" y="12" width="36" height="16" rx="2" fill="currentColor"/>
+                                        <rect x="4" y="14" width="32" height="12" rx="1" fill="var(--bg-secondary)" opacity="0.3"/>
+                                        <rect x="6" y="18" width="6" height="4" rx="1" fill="var(--bg-secondary)"/>
+                                        <rect x="14" y="18" width="4" height="4" rx="1" fill="var(--bg-secondary)"/>
+                                        <rect x="20" y="18" width="4" height="4" rx="1" fill="var(--bg-secondary)"/>
+                                        <rect x="26" y="18" width="4" height="4" rx="1" fill="var(--bg-secondary)"/>
+                                        <rect x="32" y="17" width="4" height="6" rx="1" fill="var(--bg-secondary)"/>
+                                    </svg>
+                                </div>
+                                <span class="drive-type-label">NVMe<br>Pro</span>
+                                <span class="drive-type-speed">3,500 MB/s</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- RAID Selector -->
+                    <div class="raid-selector">
+                        <span class="bay-selector-label">Redundancy Level</span>
+                        <div class="raid-options" id="raid-options">
+                            <label class="raid-option active" data-raid="0">
+                                <input type="radio" name="raid-type" value="0" checked>
+                                <div class="raid-icon">
+                                    <div class="raid-drive"></div>
+                                </div>
+                                <span class="raid-label">Single</span>
+                                <span class="raid-usable">100%</span>
+                            </label>
+                            <label class="raid-option" data-raid="1">
+                                <input type="radio" name="raid-type" value="1">
+                                <div class="raid-icon">
+                                    <div class="raid-drive stripe"></div>
+                                    <div class="raid-drive stripe"></div>
+                                </div>
+                                <span class="raid-label">RAID 0</span>
+                                <span class="raid-usable">100%</span>
+                            </label>
+                            <label class="raid-option" data-raid="2">
+                                <input type="radio" name="raid-type" value="2">
+                                <div class="raid-icon">
+                                    <div class="raid-drive mirror"></div>
+                                    <div class="raid-drive mirror"></div>
+                                </div>
+                                <span class="raid-label">RAID 1</span>
+                                <span class="raid-usable">50%</span>
+                            </label>
+                            <label class="raid-option" data-raid="3">
+                                <input type="radio" name="raid-type" value="3">
+                                <div class="raid-icon">
+                                    <div class="raid-drive"></div>
+                                    <div class="raid-drive"></div>
+                                    <div class="raid-drive parity"></div>
+                                </div>
+                                <span class="raid-label">RAID 5</span>
+                                <span class="raid-usable" id="raid5-usable">67%</span>
+                            </label>
+                            <label class="raid-option" data-raid="4">
+                                <input type="radio" name="raid-type" value="4">
+                                <div class="raid-icon">
+                                    <div class="raid-drive"></div>
+                                    <div class="raid-drive"></div>
+                                    <div class="raid-drive parity"></div>
+                                    <div class="raid-drive parity"></div>
+                                </div>
+                                <span class="raid-label">RAID 6</span>
+                                <span class="raid-usable" id="raid6-usable">50%</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="connection-type">Connection Type</label>
+                            <select id="connection-type" oninput="calculateStorage()">
+                                <option value="usb3">USB 3.0 (~400 MB/s)</option>
+                                <option value="usb31">USB 3.1 Gen 2 (~900 MB/s)</option>
+                                <option value="usb32">USB 3.2 Gen 2x2 (~1,800 MB/s)</option>
+                                <option value="tb3" selected>Thunderbolt 3/4 (~2,800 MB/s)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Calculated Drive Speed Info -->
+                    <div class="drive-speed-result">
+                        <div class="speed-info">
+                            <span class="speed-info-label">Array Write Speed</span>
+                            <span class="speed-info-value" id="array-speed">550 MB/s</span>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div class="calc-section results-section">
+                    <div class="calc-section-header">
+                        <div class="calc-section-title">Results</div>
+                        <div class="calc-section-collapse"></div>
+                    </div>
+                    <div class="calc-section-content">
+                    <div class="results-grid">
+                        <div class="result-item">
+                            <div class="result-label">Raw Data</div>
+                            <div class="result-value"><span id="raw-storage">0</span> <span class="result-unit">TB</span></div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">With 20% Safety</div>
+                            <div class="result-value"><span id="safe-storage">0</span> <span class="result-unit">TB</span></div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Total Drive Capacity Needed</div>
+                            <div class="result-value"><span id="total-storage">0</span> <span class="result-unit">TB</span></div>
+                        </div>
+                    </div>
+
+                    <div class="contingency-note">
+                        <strong>20% contingency</strong> added for drive safety, file system overhead, and unexpected additional footage.
+                    </div>
+
+                    <!-- Price Estimate -->
+                    <div class="price-estimate">
+                        <div class="calc-section-title">Estimated Cost</div>
+                        <div class="price-grid">
+                            <div class="price-item">
+                                <div class="price-label">Drive Cost</div>
+                                <div class="price-value" id="drive-cost">€0</div>
+                            </div>
+                            <div class="price-item">
+                                <div class="price-label">Enclosure Cost</div>
+                                <div class="price-value" id="enclosure-cost">€0</div>
+                            </div>
+                            <div class="price-item price-total">
+                                <div class="price-label">Total Estimate</div>
+                                <div class="price-value" id="total-cost">€0</div>
+                            </div>
+                        </div>
+                        <div class="price-note">
+                            Prices are approximate and based on current market averages. Actual costs may vary.
+                        </div>
+                    </div>
+
+                    <div class="transfer-result">
+                        <div class="calc-section-title">Transfer Time Estimate</div>
+                        <div class="transfer-breakdown">
+                            <div class="transfer-item">
+                                <div class="transfer-item-label">Daily Transfer</div>
+                                <div class="transfer-item-value" id="daily-transfer">0 min</div>
+                            </div>
+                            <div class="transfer-item">
+                                <div class="transfer-item-label">Total Project Transfer</div>
+                                <div class="transfer-item-value" id="total-transfer">0 min</div>
+                            </div>
+                            <div class="transfer-item">
+                                <div class="transfer-item-label">Effective Speed</div>
+                                <div class="transfer-item-value" id="effective-speed">0 MB/s</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Saved Configurations -->
+                    <div class="saved-configs">
+                        <div class="saved-configs-header">
+                            <span class="saved-configs-title">Save Configuration</span>
+                        </div>
+                        <div class="saved-configs-slots">
+                            <div class="config-slot" data-slot="1" onclick="handleConfigSlot(1)">
+                                <span class="config-slot-icon">💾</span>
+                                <span class="config-slot-label">Slot 1</span>
+                                <div class="config-actions" style="display: none;">
+                                    <button class="config-action-btn" onclick="event.stopPropagation(); loadConfig(1)">Load</button>
+                                    <button class="config-action-btn delete" onclick="event.stopPropagation(); deleteConfig(1)">×</button>
+                                </div>
+                            </div>
+                            <div class="config-slot" data-slot="2" onclick="handleConfigSlot(2)">
+                                <span class="config-slot-icon">💾</span>
+                                <span class="config-slot-label">Slot 2</span>
+                                <div class="config-actions" style="display: none;">
+                                    <button class="config-action-btn" onclick="event.stopPropagation(); loadConfig(2)">Load</button>
+                                    <button class="config-action-btn delete" onclick="event.stopPropagation(); deleteConfig(2)">×</button>
+                                </div>
+                            </div>
+                            <div class="config-slot" data-slot="3" onclick="handleConfigSlot(3)">
+                                <span class="config-slot-icon">💾</span>
+                                <span class="config-slot-label">Slot 3</span>
+                                <div class="config-actions" style="display: none;">
+                                    <button class="config-action-btn" onclick="event.stopPropagation(); loadConfig(3)">Load</button>
+                                    <button class="config-action-btn delete" onclick="event.stopPropagation(); deleteConfig(3)">×</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Camera database with data rates in MB/s at 24fps
+        const cameraDatabase = {
+            'ARRI': {
+                'Alexa 35': {
+                    codecs: {
+                        'ARRIRAW': { resolutions: ['4.6K Open Gate', '4K', '3.2K'], baseRate: 400 },
+                        'ProRes 4444 XQ': { resolutions: ['4.6K', '4K', '3.2K', '2K'], baseRate: 165 },
+                        'ProRes 4444': { resolutions: ['4.6K', '4K', '3.2K', '2K'], baseRate: 110 },
+                        'ProRes 422 HQ': { resolutions: ['4.6K', '4K', '3.2K', '2K'], baseRate: 73 },
+                        'ProRes 422': { resolutions: ['4.6K', '4K', '3.2K', '2K'], baseRate: 49 }
+                    },
+                    maxFps: 120
+                },
+                'Alexa Mini LF': {
+                    codecs: {
+                        'ARRIRAW': { resolutions: ['4.5K Open Gate', '4K UHD', '3.8K'], baseRate: 517 },
+                        'ProRes 4444 XQ': { resolutions: ['4.5K', '4K UHD', '3.8K'], baseRate: 209 },
+                        'ProRes 4444': { resolutions: ['4.5K', '4K UHD', '3.8K'], baseRate: 138 },
+                        'ProRes 422 HQ': { resolutions: ['4.5K', '4K UHD', '3.8K'], baseRate: 92 },
+                        'ProRes 422': { resolutions: ['4.5K', '4K UHD', '3.8K'], baseRate: 61 }
+                    },
+                    maxFps: 90
+                },
+                'Alexa Mini': {
+                    codecs: {
+                        'ARRIRAW': { resolutions: ['3.4K Open Gate', '2.8K 16:9'], baseRate: 277 },
+                        'ProRes 4444 XQ': { resolutions: ['4K UHD*', '3.2K', '2K'], baseRate: 165 },
+                        'ProRes 4444': { resolutions: ['4K UHD*', '3.2K', '2K'], baseRate: 110 },
+                        'ProRes 422 HQ': { resolutions: ['4K UHD*', '3.2K', '2K'], baseRate: 73 },
+                        'ProRes 422': { resolutions: ['4K UHD*', '3.2K', '2K'], baseRate: 49 }
+                    },
+                    maxFps: 200
+                }
+            },
+            'Sony': {
+                'Venice 2': {
+                    codecs: {
+                        'X-OCN XT': { resolutions: ['8.6K', '6K', '4K'], baseRate: 330 },
+                        'X-OCN ST': { resolutions: ['8.6K', '6K', '4K'], baseRate: 220 },
+                        'X-OCN LT': { resolutions: ['8.6K', '6K', '4K'], baseRate: 165 },
+                        'XAVC-I': { resolutions: ['4K', '2K'], baseRate: 75 }
+                    },
+                    maxFps: 120
+                },
+                'Venice': {
+                    codecs: {
+                        'X-OCN XT': { resolutions: ['6K', '4K'], baseRate: 250 },
+                        'X-OCN ST': { resolutions: ['6K', '4K'], baseRate: 170 },
+                        'X-OCN LT': { resolutions: ['6K', '4K'], baseRate: 125 },
+                        'XAVC-I': { resolutions: ['4K', '2K'], baseRate: 75 }
+                    },
+                    maxFps: 120
+                },
+                'Burano': {
+                    codecs: {
+                        'X-OCN LT': { resolutions: ['8K', '6K', '4K'], baseRate: 220 },
+                        'XAVC-H Intra HQ': { resolutions: ['8K', '4K'], baseRate: 150 },
+                        'XAVC-H Intra SQ': { resolutions: ['8K', '4K'], baseRate: 100 },
+                        'XAVC-H Long': { resolutions: ['8K', '4K'], baseRate: 50 }
+                    },
+                    maxFps: 120
+                },
+                'FX9': {
+                    codecs: {
+                        'RAW (External)': { resolutions: ['6K', '4K'], baseRate: 180 },
+                        'XAVC-I': { resolutions: ['4K', '2K'], baseRate: 75 },
+                        'XAVC-L': { resolutions: ['4K', '2K'], baseRate: 25 }
+                    },
+                    maxFps: 180
+                },
+                'FX6': {
+                    codecs: {
+                        'RAW (External)': { resolutions: ['4K'], baseRate: 150 },
+                        'XAVC-I': { resolutions: ['4K', '2K'], baseRate: 75 },
+                        'XAVC-L': { resolutions: ['4K', '2K'], baseRate: 25 }
+                    },
+                    maxFps: 240
+                },
+                'FX3': {
+                    codecs: {
+                        'ProRes RAW (External)': { resolutions: ['4K'], baseRate: 150 },
+                        'XAVC S-I': { resolutions: ['4K', '2K'], baseRate: 75 },
+                        'XAVC HS': { resolutions: ['4K', '2K'], baseRate: 12.5 },
+                        'XAVC S': { resolutions: ['4K', '2K'], baseRate: 12.5 }
+                    },
+                    maxFps: 120
+                }
+            },
+            'Blackmagic': {
+                'URSA Mini Pro 12K': {
+                    codecs: {
+                        'BRAW 5:1': { resolutions: ['12K', '8K', '6K', '4K'], baseRate: 578 },
+                        'BRAW 8:1': { resolutions: ['12K', '8K', '6K', '4K'], baseRate: 361 },
+                        'BRAW 12:1': { resolutions: ['12K', '8K', '6K', '4K'], baseRate: 241 },
+                        'BRAW Q0': { resolutions: ['12K', '8K', '6K', '4K'], baseRate: 450 },
+                        'BRAW Q3': { resolutions: ['12K', '8K', '6K', '4K'], baseRate: 230 },
+                        'BRAW Q5': { resolutions: ['12K', '8K', '6K', '4K'], baseRate: 170 }
+                    },
+                    maxFps: 60
+                },
+                'URSA Mini Pro G2': {
+                    codecs: {
+                        'BRAW 3:1': { resolutions: ['4.6K', '4K', '2K'], baseRate: 150 },
+                        'BRAW 5:1': { resolutions: ['4.6K', '4K', '2K'], baseRate: 90 },
+                        'BRAW 8:1': { resolutions: ['4.6K', '4K', '2K'], baseRate: 56 },
+                        'BRAW 12:1': { resolutions: ['4.6K', '4K', '2K'], baseRate: 38 },
+                        'ProRes 422 HQ': { resolutions: ['4K', '2K'], baseRate: 55 },
+                        'ProRes 422': { resolutions: ['4K', '2K'], baseRate: 37 }
+                    },
+                    maxFps: 120
+                },
+                'Pocket 6K Pro': {
+                    codecs: {
+                        'BRAW 3:1': { resolutions: ['6K', '4K', '2.8K'], baseRate: 100 },
+                        'BRAW 5:1': { resolutions: ['6K', '4K', '2.8K'], baseRate: 60 },
+                        'BRAW 8:1': { resolutions: ['6K', '4K', '2.8K'], baseRate: 38 },
+                        'BRAW 12:1': { resolutions: ['6K', '4K', '2.8K'], baseRate: 25 },
+                        'ProRes 422 HQ': { resolutions: ['4K', '2K'], baseRate: 28 },
+                        'ProRes 422': { resolutions: ['4K', '2K'], baseRate: 18 }
+                    },
+                    maxFps: 60
+                },
+                'Pocket 6K G2': {
+                    codecs: {
+                        'BRAW 3:1': { resolutions: ['6K', '4K', '2.8K'], baseRate: 100 },
+                        'BRAW 5:1': { resolutions: ['6K', '4K', '2.8K'], baseRate: 60 },
+                        'BRAW 8:1': { resolutions: ['6K', '4K', '2.8K'], baseRate: 38 },
+                        'BRAW 12:1': { resolutions: ['6K', '4K', '2.8K'], baseRate: 25 },
+                        'ProRes 422 HQ': { resolutions: ['4K', '2K'], baseRate: 28 },
+                        'ProRes 422': { resolutions: ['4K', '2K'], baseRate: 18 }
+                    },
+                    maxFps: 60
+                },
+                'Pocket 4K': {
+                    codecs: {
+                        'BRAW 3:1': { resolutions: ['4K', '2.8K'], baseRate: 33 },
+                        'BRAW 5:1': { resolutions: ['4K', '2.8K'], baseRate: 20 },
+                        'BRAW 8:1': { resolutions: ['4K', '2.8K'], baseRate: 13 },
+                        'BRAW 12:1': { resolutions: ['4K', '2.8K'], baseRate: 8 },
+                        'ProRes 422 HQ': { resolutions: ['4K', '2K'], baseRate: 28 },
+                        'ProRes 422': { resolutions: ['4K', '2K'], baseRate: 18 }
+                    },
+                    maxFps: 60
+                }
+            },
+            'DJI': {
+                'Inspire 3': {
+                    codecs: {
+                        'ProRes 422 HQ': { resolutions: ['8K', '4K'], baseRate: 220 },
+                        'ProRes 422': { resolutions: ['8K', '4K'], baseRate: 150 },
+                        'H.265': { resolutions: ['8K', '4K'], baseRate: 25 }
+                    },
+                    maxFps: 60
+                },
+                'Mavic 3 Pro Cine': {
+                    codecs: {
+                        'ProRes 422 HQ': { resolutions: ['5.1K', '4K'], baseRate: 90 },
+                        'ProRes 422': { resolutions: ['5.1K', '4K'], baseRate: 60 },
+                        'H.265': { resolutions: ['5.1K', '4K'], baseRate: 20 }
+                    },
+                    maxFps: 120
+                },
+                'Mavic 3 Pro': {
+                    codecs: {
+                        'H.265': { resolutions: ['5.1K', '4K'], baseRate: 20 },
+                        'H.264': { resolutions: ['4K', '1080p'], baseRate: 15 }
+                    },
+                    maxFps: 120
+                },
+                'Mavic 3 Cine': {
+                    codecs: {
+                        'ProRes 422 HQ': { resolutions: ['5.1K', '4K'], baseRate: 90 },
+                        'ProRes 422': { resolutions: ['5.1K', '4K'], baseRate: 60 },
+                        'H.265': { resolutions: ['5.1K', '4K'], baseRate: 20 }
+                    },
+                    maxFps: 120
+                },
+                'Air 3': {
+                    codecs: {
+                        'H.265': { resolutions: ['4K', '1080p'], baseRate: 18 },
+                        'H.264': { resolutions: ['4K', '1080p'], baseRate: 15 }
+                    },
+                    maxFps: 60
+                },
+                'Mini 4 Pro': {
+                    codecs: {
+                        'H.265': { resolutions: ['4K', '1080p'], baseRate: 18 },
+                        'H.264': { resolutions: ['4K', '1080p'], baseRate: 12 }
+                    },
+                    maxFps: 60
+                }
+            }
+        };
+
+        // Drone-specific database (includes all cinema cameras + DJI)
+        const droneDatabase = {
+            ...cameraDatabase,
+            'DJI': cameraDatabase['DJI']
+        };
+
+        // Resolution multipliers (relative to base which is typically largest resolution)
+        const resolutionMultipliers = {
+            '12K': 1.0,
+            '8.6K': 0.85,
+            '8K': 0.75,
+            '6K': 0.45,
+            '5.1K': 0.55,
+            '4.6K Open Gate': 1.0,
+            '4.6K': 0.95,
+            '4.5K Open Gate': 1.0,
+            '4.5K': 0.95,
+            '4K UHD*': 0.7,
+            '4K UHD': 0.7,
+            '4K': 0.65,
+            '3.8K': 0.55,
+            '3.4K Open Gate': 0.75,
+            '3.2K': 0.5,
+            '2.8K 16:9': 0.45,
+            '2.8K': 0.4,
+            '2K': 0.25,
+            '1080p': 0.15
+        };
+
+        // Frame rate multipliers (relative to 24fps)
+        const frameRates = [24, 25, 30, 48, 50, 60, 120];
+
+        // Drive speeds in MB/s and price per TB (approximate market prices)
+        const driveSpeeds = [
+            { name: 'HDD 5400rpm', speed: 100, pricePerTB: 25 },
+            { name: 'HDD 7200rpm', speed: 150, pricePerTB: 35 },
+            { name: 'SSD (SATA)', speed: 550, pricePerTB: 60 },
+            { name: 'SSD (NVMe)', speed: 2000, pricePerTB: 80 },
+            { name: 'NVMe (High-end)', speed: 3500, pricePerTB: 120 }
+        ];
+
+        // Enclosure prices by bay count and drive type (0=HDD, 1=HDD, 2=SSD SATA, 3=NVMe, 4=NVMe Pro)
+        const enclosurePrices = {
+            1: { 0: 80, 1: 100, 2: 30, 3: 50, 4: 80 },      // Single drive enclosures
+            2: { 0: 200, 1: 250, 2: 150, 3: 200, 4: 300 },   // 2-bay enclosures
+            4: { 0: 500, 1: 600, 2: 400, 3: 600, 4: 900 },   // 4-bay enclosures
+            6: { 0: 800, 1: 950, 2: 700, 3: 900, 4: 1300 },  // 6-bay enclosures
+            12: { 0: 1500, 1: 1800, 2: 1400, 3: 1800, 4: 2500 } // 12-bay enclosures
+        };
+
+        // RAID configurations with speed multipliers
+        // speedMultiplier: how many drives contribute to speed (relative to single drive)
+        const raidConfigs = [
+            { name: 'Single Drive', usable: 1.0, minDrives: 1, speedMultiplier: 1 },
+            { name: 'RAID 0 (Stripe)', usable: 1.0, minDrives: 2, speedMultiplier: 'all' },  // All drives contribute
+            { name: 'RAID 1 (Mirror)', usable: 0.5, minDrives: 2, speedMultiplier: 1 },      // Write speed = 1 drive
+            { name: 'RAID 5', usable: 0.75, minDrives: 3, speedMultiplier: 'n-1' },          // n-1 drives for speed
+            { name: 'RAID 6', usable: 0.67, minDrives: 4, speedMultiplier: 'n-2' }           // n-2 drives for speed
+        ];
+
+        // Connection speeds in MB/s
+        const connectionSpeeds = {
+            'usb3': 400,
+            'usb31': 900,
+            'usb32': 1800,
+            'tb3': 2800
+        };
+
+        let additionalCameraCount = 0;
+        let droneCameraCount = 0;
+        let selectedBays = 1;
+        let selectedDriveSpeed = 2;  // Default to SSD SATA
+        let selectedRaid = 0;        // Default to Single Drive
+
+        // Toggle calc section collapse
+        function toggleCalcSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (!section) return;
+
+            section.classList.toggle('collapsed');
+            const collapseText = section.querySelector('.collapse-text');
+            if (collapseText) {
+                collapseText.textContent = section.classList.contains('collapsed') ? 'Expand' : 'Collapse';
+            }
+        }
+
+        // Section states
+        const sectionStates = {
+            acam: true,
+            bcam: false,
+            additional: false,
+            drone: false
+        };
+
+        // Toggle section on/off
+        function toggleSection(section) {
+            sectionStates[section] = !sectionStates[section];
+            const sectionEl = document.getElementById(`${section}-section`);
+            const toggleEl = document.getElementById(`${section}-toggle`);
+            const toggleText = sectionEl.querySelector('.camera-section-toggle span');
+
+            if (sectionStates[section]) {
+                sectionEl.classList.remove('disabled');
+                toggleEl.classList.add('active');
+                toggleText.textContent = 'Active';
+
+                // Initialize camera for section if empty
+                if (section === 'bcam' && !document.getElementById('bcam-camera-container').hasChildNodes()) {
+                    addCameraToSection('bcam');
+                }
+                if (section === 'additional' && document.getElementById('additional-cameras-container').children.length === 0) {
+                    addAdditionalCamera();
+                }
+                if (section === 'drone' && document.getElementById('drone-cameras-container').children.length === 0) {
+                    addDroneCamera();
+                }
+            } else {
+                sectionEl.classList.add('disabled');
+                toggleEl.classList.remove('active');
+                toggleText.textContent = 'Inactive';
+            }
+
+            calculateStorage();
+        }
+
+        // Add camera to A CAM or B CAM section
+        function addCameraToSection(section) {
+            const container = document.getElementById(`${section}-camera-container`);
+            if (!container) return;
+
+            container.innerHTML = createCameraCardHTML(`${section}-camera`, false, cameraDatabase);
+        }
+
+        // Add additional camera
+        function addAdditionalCamera() {
+            additionalCameraCount++;
+            const container = document.getElementById('additional-cameras-container');
+            const cameraLetter = String.fromCharCode(66 + additionalCameraCount); // C, D, E...
+
+            const card = document.createElement('div');
+            card.className = 'camera-card';
+            card.id = `additional-camera-${additionalCameraCount}`;
+            card.innerHTML = `
+                <div class="camera-card-header">
+                    <span class="camera-card-title">${cameraLetter} CAM</span>
+                    <button class="remove-camera-btn" onclick="removeAdditionalCamera(${additionalCameraCount})">Remove</button>
+                </div>
+                <div class="shooting-params">
+                    <div class="form-group">
+                        <label>Shooting Days</label>
+                        <input type="number" class="additional-days" min="1" value="10" oninput="calculateStorage()">
+                    </div>
+                    <div class="form-group">
+                        <label>Hours / Day</label>
+                        <input type="number" class="additional-hours" min="0.5" step="0.5" value="4" oninput="calculateStorage()">
+                    </div>
+                </div>
+                ${createCameraSelectsHTML(`additional-${additionalCameraCount}`, cameraDatabase)}
+            `;
+
+            container.appendChild(card);
+            calculateStorage();
+        }
+
+        // Remove additional camera
+        function removeAdditionalCamera(id) {
+            const card = document.getElementById(`additional-camera-${id}`);
+            if (card) {
+                card.remove();
+                calculateStorage();
+            }
+        }
+
+        // Add drone camera
+        function addDroneCamera() {
+            droneCameraCount++;
+            const container = document.getElementById('drone-cameras-container');
+
+            const card = document.createElement('div');
+            card.className = 'camera-card';
+            card.id = `drone-camera-${droneCameraCount}`;
+            card.innerHTML = `
+                <div class="camera-card-header">
+                    <span class="camera-card-title">Drone ${droneCameraCount}</span>
+                    <button class="remove-camera-btn" onclick="removeDroneCamera(${droneCameraCount})">Remove</button>
+                </div>
+                <div class="shooting-params">
+                    <div class="form-group">
+                        <label>Shooting Days</label>
+                        <input type="number" class="drone-days" min="1" value="5" oninput="calculateStorage()">
+                    </div>
+                    <div class="form-group">
+                        <label>Hours / Day</label>
+                        <input type="number" class="drone-hours" min="0.5" step="0.5" value="1" oninput="calculateStorage()">
+                    </div>
+                </div>
+                ${createCameraSelectsHTML(`drone-${droneCameraCount}`, droneDatabase, true)}
+            `;
+
+            container.appendChild(card);
+            calculateStorage();
+        }
+
+        // Remove drone camera
+        function removeDroneCamera(id) {
+            const card = document.getElementById(`drone-camera-${id}`);
+            if (card) {
+                card.remove();
+                calculateStorage();
+            }
+        }
+
+        // Create camera card HTML (for A CAM, B CAM)
+        function createCameraCardHTML(idPrefix, showRemove, database) {
+            return `
+                ${createCameraSelectsHTML(idPrefix, database)}
+            `;
+        }
+
+        // Create camera select dropdowns HTML
+        function createCameraSelectsHTML(idPrefix, database, preferDJI = false) {
+            const brands = Object.keys(database);
+            // Sort to put DJI first for drone section
+            if (preferDJI) {
+                brands.sort((a, b) => a === 'DJI' ? -1 : b === 'DJI' ? 1 : 0);
+            }
+
+            return `
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Brand</label>
+                        <select id="brand-${idPrefix}" oninput="updateModelsForId('${idPrefix}', ${preferDJI})">
+                            <option value="">Select Brand</option>
+                            ${brands.map(brand => `<option value="${brand}">${brand}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Model</label>
+                        <select id="model-${idPrefix}" oninput="updateCodecsForId('${idPrefix}', ${preferDJI})" disabled>
+                            <option value="">Select Model</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Codec</label>
+                        <select id="codec-${idPrefix}" oninput="updateResolutionsForId('${idPrefix}', ${preferDJI})" disabled>
+                            <option value="">Select Codec</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Resolution</label>
+                        <select id="resolution-${idPrefix}" oninput="calculateStorage()" disabled>
+                            <option value="">Select Resolution</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Frame Rate</label>
+                        <select id="fps-${idPrefix}" oninput="calculateStorage()" disabled>
+                            <option value="">Select Frame Rate</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Generic update functions for any camera ID
+        function updateModelsForId(idPrefix, useDroneDb = false) {
+            const database = useDroneDb ? droneDatabase : cameraDatabase;
+            const brand = document.getElementById(`brand-${idPrefix}`).value;
+            const modelSelect = document.getElementById(`model-${idPrefix}`);
+            const codecSelect = document.getElementById(`codec-${idPrefix}`);
+            const resolutionSelect = document.getElementById(`resolution-${idPrefix}`);
+            const fpsSelect = document.getElementById(`fps-${idPrefix}`);
+
+            modelSelect.innerHTML = '<option value="">Select Model</option>';
+            codecSelect.innerHTML = '<option value="">Select Codec</option>';
+            resolutionSelect.innerHTML = '<option value="">Select Resolution</option>';
+            fpsSelect.innerHTML = '<option value="">Select Frame Rate</option>';
+
+            codecSelect.disabled = true;
+            resolutionSelect.disabled = true;
+            fpsSelect.disabled = true;
+
+            if (brand && database[brand]) {
+                modelSelect.disabled = false;
+                Object.keys(database[brand]).forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model;
+                    option.textContent = model;
+                    modelSelect.appendChild(option);
+                });
+            } else {
+                modelSelect.disabled = true;
+            }
+
+            calculateStorage();
+        }
+
+        function updateCodecsForId(idPrefix, useDroneDb = false) {
+            const database = useDroneDb ? droneDatabase : cameraDatabase;
+            const brand = document.getElementById(`brand-${idPrefix}`).value;
+            const model = document.getElementById(`model-${idPrefix}`).value;
+            const codecSelect = document.getElementById(`codec-${idPrefix}`);
+            const resolutionSelect = document.getElementById(`resolution-${idPrefix}`);
+            const fpsSelect = document.getElementById(`fps-${idPrefix}`);
+
+            codecSelect.innerHTML = '<option value="">Select Codec</option>';
+            resolutionSelect.innerHTML = '<option value="">Select Resolution</option>';
+            fpsSelect.innerHTML = '<option value="">Select Frame Rate</option>';
+
+            resolutionSelect.disabled = true;
+            fpsSelect.disabled = true;
+
+            if (brand && model && database[brand][model]) {
+                codecSelect.disabled = false;
+                const camera = database[brand][model];
+                Object.keys(camera.codecs).forEach(codec => {
+                    const option = document.createElement('option');
+                    option.value = codec;
+                    option.textContent = codec;
+                    codecSelect.appendChild(option);
+                });
+            } else {
+                codecSelect.disabled = true;
+            }
+
+            calculateStorage();
+        }
+
+        function updateResolutionsForId(idPrefix, useDroneDb = false) {
+            const database = useDroneDb ? droneDatabase : cameraDatabase;
+            const brand = document.getElementById(`brand-${idPrefix}`).value;
+            const model = document.getElementById(`model-${idPrefix}`).value;
+            const codec = document.getElementById(`codec-${idPrefix}`).value;
+            const resolutionSelect = document.getElementById(`resolution-${idPrefix}`);
+            const fpsSelect = document.getElementById(`fps-${idPrefix}`);
+
+            resolutionSelect.innerHTML = '<option value="">Select Resolution</option>';
+            fpsSelect.innerHTML = '<option value="">Select Frame Rate</option>';
+
+            fpsSelect.disabled = true;
+
+            if (brand && model && codec && database[brand][model].codecs[codec]) {
+                resolutionSelect.disabled = false;
+                const resolutions = database[brand][model].codecs[codec].resolutions;
+                resolutions.forEach(res => {
+                    const option = document.createElement('option');
+                    option.value = res;
+                    option.textContent = res;
+                    resolutionSelect.appendChild(option);
+                });
+
+                fpsSelect.disabled = false;
+                const maxFps = database[brand][model].maxFps;
+                frameRates.forEach(fps => {
+                    if (fps <= maxFps) {
+                        const option = document.createElement('option');
+                        option.value = fps;
+                        option.textContent = `${fps} fps`;
+                        fpsSelect.appendChild(option);
+                    }
+                });
+            } else {
+                resolutionSelect.disabled = true;
+            }
+
+            calculateStorage();
+        }
+
+        // Product examples database [bays][driveType]
+        const driveExamples = {
+            1: {
+                0: { products: ['LaCie Rugged', 'WD My Passport', 'Seagate Backup Plus'] },
+                1: { products: ['G-Drive ArmorATD', 'LaCie Rugged', 'WD Black P10'] },
+                2: { products: ['Samsung T5', 'SanDisk Extreme Portable', 'Crucial X6'] },
+                3: { products: ['Samsung T7 Shield', 'SanDisk Extreme Pro', 'LaCie Rugged SSD'] },
+                4: { products: ['Samsung T9', 'LaCie Rugged SSD Pro', 'SanDisk Pro-G40'] }
+            },
+            2: {
+                0: { products: ['G-RAID 2', 'OWC Mercury Elite Dual', 'LaCie 2big RAID'] },
+                1: { products: ['G-RAID 2', 'OWC Mercury Elite Dual', 'LaCie 2big RAID'] },
+                2: { products: ['Glyph Atom RAID SSD', 'OWC Envoy Pro EX'] },
+                3: { products: ['OWC Envoy Pro FX', 'Sabrent Rocket XTRM'] },
+                4: { products: ['OWC ThunderBlade', 'Sabrent Rocket XTRM-Q'] }
+            },
+            4: {
+                0: { products: ['Symply WORKSPACE', 'ARECA ARC-8050T3-4', 'G-SPEED Shuttle'] },
+                1: { products: ['Symply WORKSPACE', 'ARECA ARC-8050T3-4', 'OWC ThunderBay 4'] },
+                2: { products: ['Symply SymplySPARK', 'ARECA ARC-8050T3-4', 'OWC ThunderBay 4'] },
+                3: { products: ['Symply SymplySPARK', 'ARECA ARC-4038ML', 'OWC Express 4M2'] },
+                4: { products: ['Symply SymplySPARK Pro', 'ARECA ARC-4038ML', 'OWC Express 4M2'] }
+            },
+            6: {
+                0: { products: ['Symply WORKSPACE XL', 'ARECA ARC-8050T3-6', 'G-SPEED Studio XL'] },
+                1: { products: ['Symply WORKSPACE XL', 'ARECA ARC-8050T3-6', 'Promise Pegasus R6'] },
+                2: { products: ['Symply SymplySPARK XL', 'ARECA ARC-8050T3-6', 'OWC ThunderBay 8'] },
+                3: { products: ['Symply SymplySPARK XL', 'ARECA ARC-8050T3-6M', 'Promise Pegasus J2i'] },
+                4: { products: ['Symply SymplySPARK Pro', 'ARECA ARC-8050T3-6M'] }
+            },
+            12: {
+                0: { products: ['Symply WORKSPACE 12', 'ARECA ARC-8050T3-12', 'Promise Pegasus R12'] },
+                1: { products: ['Symply WORKSPACE 12', 'ARECA ARC-8050T3-12', 'G-SPEED Studio XL'] },
+                2: { products: ['Symply LTO Edition', 'ARECA ARC-8050T3-12', 'Promise Pegasus R12'] },
+                3: { products: ['Symply PRO Series', 'ARECA ARC-8050T3-12M'] },
+                4: { products: ['Symply PRO Series', 'ARECA Enterprise Solutions'] }
+            }
+        };
+
+        // Update drive example display
+        function updateDriveExample() {
+            const exampleEl = document.getElementById('drive-example');
+            if (!exampleEl) return;
+
+            const examples = driveExamples[selectedBays]?.[selectedDriveSpeed];
+            if (examples && examples.products) {
+                const productList = examples.products.map((p, i) =>
+                    i === 0 ? `<strong>${p}</strong>` : p
+                ).join(', ');
+                exampleEl.innerHTML = productList;
+            } else {
+                exampleEl.innerHTML = '<em>Custom/Enterprise solutions</em>';
+            }
+        }
+
+        // Bay selector handling
+        function initBaySelector() {
+            const bayOptions = document.querySelectorAll('.bay-option');
+            bayOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    // Remove active class from all
+                    bayOptions.forEach(opt => opt.classList.remove('active'));
+                    // Add active class to clicked
+                    option.classList.add('active');
+                    // Update selected bays
+                    selectedBays = parseInt(option.dataset.bays);
+                    // Update RAID availability based on available bays
+                    updateRaidAvailability();
+                    // Update drive example
+                    updateDriveExample();
+                    // Recalculate
+                    calculateStorage();
+                });
+            });
+        }
+
+        // Drive type selector handling
+        function initDriveTypeSelector() {
+            const driveOptions = document.querySelectorAll('.drive-type-option');
+            driveOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    // Remove active class from all
+                    driveOptions.forEach(opt => opt.classList.remove('active'));
+                    // Add active class to clicked
+                    option.classList.add('active');
+                    // Update selected drive speed
+                    selectedDriveSpeed = parseInt(option.dataset.speed);
+                    // Update drive example
+                    updateDriveExample();
+                    // Recalculate
+                    calculateStorage();
+                });
+            });
+        }
+
+        // RAID selector handling
+        function initRaidSelector() {
+            const raidOptions = document.querySelectorAll('.raid-option');
+            raidOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    if (option.classList.contains('disabled')) return;
+                    // Remove active class from all
+                    raidOptions.forEach(opt => opt.classList.remove('active'));
+                    // Add active class to clicked
+                    option.classList.add('active');
+                    // Update selected RAID
+                    selectedRaid = parseInt(option.dataset.raid);
+                    // Recalculate
+                    calculateStorage();
+                });
+            });
+        }
+
+        // Update RAID availability based on bay count
+        function updateRaidAvailability() {
+            const raidOptions = document.querySelectorAll('.raid-option');
+
+            raidOptions.forEach(option => {
+                const raidLevel = parseInt(option.dataset.raid);
+                const config = raidConfigs[raidLevel];
+                const minDrives = config.minDrives;
+
+                if (selectedBays < minDrives) {
+                    option.classList.add('disabled');
+                    // If currently selected RAID is now disabled, reset to single
+                    if (selectedRaid === raidLevel) {
+                        selectedRaid = 0;
+                        raidOptions.forEach(opt => opt.classList.remove('active'));
+                        document.querySelector('.raid-option[data-raid="0"]').classList.add('active');
+                    }
+                } else {
+                    option.classList.remove('disabled');
+                }
+            });
+
+            // Update RAID 5 and RAID 6 usable percentages based on bay count
+            const raid5Usable = document.getElementById('raid5-usable');
+            const raid6Usable = document.getElementById('raid6-usable');
+
+            if (raid5Usable && selectedBays >= 3) {
+                const percent = Math.round(((selectedBays - 1) / selectedBays) * 100);
+                raid5Usable.textContent = `${percent}%`;
+            }
+
+            if (raid6Usable && selectedBays >= 4) {
+                const percent = Math.round(((selectedBays - 2) / selectedBays) * 100);
+                raid6Usable.textContent = `${percent}%`;
+            }
+        }
+
+        // Calculate array speed based on bays, drive speed, and RAID
+        function calculateArraySpeed() {
+            const driveSpeed = driveSpeeds[selectedDriveSpeed].speed;
+            const raidConfig = raidConfigs[selectedRaid];
+            const connectionSpeed = connectionSpeeds[document.getElementById('connection-type').value];
+
+            let arraySpeed;
+
+            if (raidConfig.speedMultiplier === 'all') {
+                // RAID 0: all drives contribute
+                arraySpeed = driveSpeed * selectedBays;
+            } else if (raidConfig.speedMultiplier === 'n-1') {
+                // RAID 5: n-1 drives contribute
+                arraySpeed = driveSpeed * (selectedBays - 1);
+            } else if (raidConfig.speedMultiplier === 'n-2') {
+                // RAID 6: n-2 drives contribute
+                arraySpeed = driveSpeed * Math.max(1, selectedBays - 2);
+            } else {
+                // Single drive or RAID 1
+                arraySpeed = driveSpeed * raidConfig.speedMultiplier;
+            }
+
+            // Limit by connection speed
+            const effectiveSpeed = Math.min(arraySpeed, connectionSpeed);
+
+            return { arraySpeed, effectiveSpeed, connectionSpeed };
+        }
+
+        // Helper to calculate data for a single camera
+        function getCameraDataRate(idPrefix, database) {
+            const brand = document.getElementById(`brand-${idPrefix}`)?.value;
+            const model = document.getElementById(`model-${idPrefix}`)?.value;
+            const codec = document.getElementById(`codec-${idPrefix}`)?.value;
+            const resolution = document.getElementById(`resolution-${idPrefix}`)?.value;
+            const fps = parseInt(document.getElementById(`fps-${idPrefix}`)?.value) || 24;
+
+            if (brand && model && codec && resolution && database[brand]?.[model]?.codecs?.[codec]) {
+                const baseRate = database[brand][model].codecs[codec].baseRate;
+                const resMultiplier = resolutionMultipliers[resolution] || 1.0;
+                const fpsMultiplier = fps / 24;
+                return baseRate * resMultiplier * fpsMultiplier;
+            }
+            return 0;
+        }
+
+        function calculateStorage() {
+            let totalStorageGB = 0;
+            let maxShootingDays = 1;
+
+            // A CAM
+            if (sectionStates.acam) {
+                const days = parseFloat(document.getElementById('acam-days')?.value) || 0;
+                const hours = parseFloat(document.getElementById('acam-hours')?.value) || 0;
+                const dataRate = getCameraDataRate('acam-camera', cameraDatabase);
+                const seconds = days * hours * 3600;
+                totalStorageGB += (dataRate * seconds) / 1000;
+                maxShootingDays = Math.max(maxShootingDays, days);
+            }
+
+            // B CAM
+            if (sectionStates.bcam) {
+                const days = parseFloat(document.getElementById('bcam-days')?.value) || 0;
+                const hours = parseFloat(document.getElementById('bcam-hours')?.value) || 0;
+                const dataRate = getCameraDataRate('bcam-camera', cameraDatabase);
+                const seconds = days * hours * 3600;
+                totalStorageGB += (dataRate * seconds) / 1000;
+                maxShootingDays = Math.max(maxShootingDays, days);
+            }
+
+            // Additional Cameras
+            if (sectionStates.additional) {
+                document.querySelectorAll('#additional-cameras-container .camera-card').forEach(card => {
+                    const id = card.id.replace('additional-camera-', '');
+                    const daysInput = card.querySelector('.additional-days');
+                    const hoursInput = card.querySelector('.additional-hours');
+                    const days = parseFloat(daysInput?.value) || 0;
+                    const hours = parseFloat(hoursInput?.value) || 0;
+                    const dataRate = getCameraDataRate(`additional-${id}`, cameraDatabase);
+                    const seconds = days * hours * 3600;
+                    totalStorageGB += (dataRate * seconds) / 1000;
+                    maxShootingDays = Math.max(maxShootingDays, days);
+                });
+            }
+
+            // Drones
+            if (sectionStates.drone) {
+                document.querySelectorAll('#drone-cameras-container .camera-card').forEach(card => {
+                    const id = card.id.replace('drone-camera-', '');
+                    const daysInput = card.querySelector('.drone-days');
+                    const hoursInput = card.querySelector('.drone-hours');
+                    const days = parseFloat(daysInput?.value) || 0;
+                    const hours = parseFloat(hoursInput?.value) || 0;
+                    const dataRate = getCameraDataRate(`drone-${id}`, droneDatabase);
+                    const seconds = days * hours * 3600;
+                    totalStorageGB += (dataRate * seconds) / 1000;
+                    maxShootingDays = Math.max(maxShootingDays, days);
+                });
+            }
+
+            const rawStorageTB = totalStorageGB / 1000;
+
+            // Add 20% contingency
+            const safeStorageTB = rawStorageTB * 1.2;
+
+            // Calculate RAID overhead based on actual bay count
+            const raidConfig = raidConfigs[selectedRaid];
+            let usableRatio = raidConfig.usable;
+
+            // Calculate actual usable ratio based on bay count
+            if (raidConfig.name === 'RAID 5') {
+                usableRatio = (selectedBays - 1) / selectedBays;
+            } else if (raidConfig.name === 'RAID 6') {
+                usableRatio = (selectedBays - 2) / selectedBays;
+            }
+
+            const totalStorageTB = safeStorageTB / usableRatio;
+
+            // Update display
+            document.getElementById('raw-storage').textContent = rawStorageTB.toFixed(2);
+            document.getElementById('safe-storage').textContent = safeStorageTB.toFixed(2);
+            document.getElementById('total-storage').textContent = totalStorageTB.toFixed(2);
+
+            // Calculate array speed and transfer times
+            const { arraySpeed, effectiveSpeed, connectionSpeed } = calculateArraySpeed();
+
+            // Update array speed display
+            const arraySpeedEl = document.getElementById('array-speed');
+            if (arraySpeedEl) {
+                const speedDisplay = arraySpeed > connectionSpeed
+                    ? `${effectiveSpeed.toLocaleString()} MB/s <span style="font-size: 0.75rem; opacity: 0.7">(limited by connection)</span>`
+                    : `${effectiveSpeed.toLocaleString()} MB/s`;
+                arraySpeedEl.innerHTML = speedDisplay;
+            }
+
+            const dailyStorageGB = maxShootingDays > 0 ? totalStorageGB / maxShootingDays : 0;
+            const dailyTransferSeconds = effectiveSpeed > 0 ? (dailyStorageGB * 1000) / effectiveSpeed : 0;
+            const totalTransferSeconds = effectiveSpeed > 0 ? (totalStorageGB * 1000) / effectiveSpeed : 0;
+
+            document.getElementById('daily-transfer').textContent = formatTime(dailyTransferSeconds);
+            document.getElementById('total-transfer').textContent = formatTime(totalTransferSeconds);
+            document.getElementById('effective-speed').textContent = `${effectiveSpeed.toLocaleString()} MB/s`;
+
+            // Calculate price estimates
+            const driveInfo = driveSpeeds[selectedDriveSpeed];
+            const driveCost = Math.ceil(totalStorageTB) * driveInfo.pricePerTB;
+            const enclosureCost = enclosurePrices[selectedBays]?.[selectedDriveSpeed] || 0;
+            const totalCost = driveCost + enclosureCost;
+
+            document.getElementById('drive-cost').textContent = `€${driveCost.toLocaleString()}`;
+            document.getElementById('enclosure-cost').textContent = `€${enclosureCost.toLocaleString()}`;
+            document.getElementById('total-cost').textContent = `€${totalCost.toLocaleString()}`;
+        }
+
+        function formatTime(seconds) {
+            if (seconds < 60) {
+                return `${Math.round(seconds)} sec`;
+            } else if (seconds < 3600) {
+                return `${Math.round(seconds / 60)} min`;
+            } else {
+                const hours = Math.floor(seconds / 3600);
+                const mins = Math.round((seconds % 3600) / 60);
+                return `${hours}h ${mins}m`;
+            }
+        }
+
+        // Saved configurations
+        function getStoredConfigs() {
+            try {
+                return JSON.parse(localStorage.getItem('storageEstimatorConfigs')) || {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function saveConfig(slot) {
+            const config = {
+                bays: selectedBays,
+                driveType: selectedDriveSpeed,
+                raid: selectedRaid,
+                connection: document.getElementById('connection')?.value || 'tb3',
+                timestamp: Date.now()
+            };
+
+            const configs = getStoredConfigs();
+            configs[slot] = config;
+            localStorage.setItem('storageEstimatorConfigs', JSON.stringify(configs));
+            updateConfigSlots();
+        }
+
+        function loadConfig(slot) {
+            const configs = getStoredConfigs();
+            const config = configs[slot];
+            if (!config) return;
+
+            // Apply bay selection
+            selectedBays = config.bays;
+            document.querySelectorAll('.bay-option').forEach(opt => {
+                opt.classList.toggle('active', parseInt(opt.dataset.bays) === config.bays);
+            });
+
+            // Apply drive type selection
+            selectedDriveSpeed = config.driveType;
+            document.querySelectorAll('.drive-type-option').forEach(opt => {
+                opt.classList.toggle('active', parseInt(opt.dataset.speed) === config.driveType);
+            });
+
+            // Apply RAID selection
+            selectedRaid = config.raid;
+            document.querySelectorAll('.raid-option').forEach(opt => {
+                opt.classList.toggle('active', parseInt(opt.dataset.raid) === config.raid);
+            });
+
+            // Apply connection
+            const connectionEl = document.getElementById('connection');
+            if (connectionEl && config.connection) {
+                connectionEl.value = config.connection;
+            }
+
+            updateRaidOptions();
+            updateDriveExample();
+            calculateStorage();
+        }
+
+        function deleteConfig(slot) {
+            const configs = getStoredConfigs();
+            delete configs[slot];
+            localStorage.setItem('storageEstimatorConfigs', JSON.stringify(configs));
+            updateConfigSlots();
+        }
+
+        function handleConfigSlot(slot) {
+            const configs = getStoredConfigs();
+            if (configs[slot]) {
+                loadConfig(slot);
+            } else {
+                saveConfig(slot);
+            }
+        }
+
+        function updateConfigSlots() {
+            const configs = getStoredConfigs();
+            document.querySelectorAll('.config-slot').forEach(slot => {
+                const slotNum = slot.dataset.slot;
+                const hasConfig = !!configs[slotNum];
+                slot.classList.toggle('has-config', hasConfig);
+
+                const label = slot.querySelector('.config-slot-label');
+                const actions = slot.querySelector('.config-actions');
+                const icon = slot.querySelector('.config-slot-icon');
+
+                if (hasConfig) {
+                    const config = configs[slotNum];
+                    const driveNames = ['HDD 5400', 'HDD 7200', 'SSD SATA', 'NVMe', 'NVMe Pro'];
+                    label.textContent = `${config.bays}-bay ${driveNames[config.driveType]}`;
+                    icon.textContent = '📁';
+                    actions.style.display = 'flex';
+                } else {
+                    label.textContent = `Slot ${slotNum}`;
+                    icon.textContent = '💾';
+                    actions.style.display = 'none';
+                }
+            });
+        }
+
+        // Match logo height to header content
+        function matchLogoHeight() {
+            const headerContent = document.querySelector('.header-content');
+            const logoSvg = document.querySelector('.page-logo-svg');
+            if (headerContent && logoSvg) {
+                const height = headerContent.offsetHeight;
+                logoSvg.style.height = height + 'px';
+            }
+        }
+
+        // Initialize with one camera
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize all selectors
+            initBaySelector();
+            initDriveTypeSelector();
+            initRaidSelector();
+
+            // Initialize A CAM (always active)
+            addCameraToSection('acam');
+
+            // Initial updates
+            updateDriveExample();
+            calculateStorage();
+            updateConfigSlots();
+
+            // Match logo height to text content
+            matchLogoHeight();
+            window.addEventListener('resize', matchLogoHeight);
+        });
+    </script>
+
+    <!-- Noise canvas script from main site -->
+    <script>
+        // Simple noise generation for consistency with main site
+        const canvas = document.getElementById('noise-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function generateNoise() {
+            const imageData = ctx.createImageData(canvas.width, canvas.height);
+            const data = imageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const value = Math.random() * 255;
+                data[i] = value;
+                data[i + 1] = value;
+                data[i + 2] = value;
+                data[i + 3] = 25;
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        resize();
+        generateNoise();
+
+        window.addEventListener('resize', () => {
+            resize();
+            generateNoise();
+        });
+
+        // Subtle animation
+        setInterval(generateNoise, 100);
+    </script>
+
+    <!-- Theme Toggle (B&W Mode) & Mobile Menu -->
+    <script>
+        (function() {
+            // Theme Toggle
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                // Check for saved preference
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'light') {
+                    document.body.classList.add('light-mode');
+                    themeToggle.querySelector('.theme-toggle-text').textContent = 'Color';
+                }
+
+                themeToggle.addEventListener('click', () => {
+                    document.body.classList.toggle('light-mode');
+                    const isLightMode = document.body.classList.contains('light-mode');
+
+                    // Update button text
+                    themeToggle.querySelector('.theme-toggle-text').textContent = isLightMode ? 'Color' : 'B&W';
+
+                    // Save preference
+                    localStorage.setItem('theme', isLightMode ? 'light' : 'dark');
+                });
+            }
+
+            // Mobile Menu Toggle
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const navLinks = document.getElementById('nav-links');
+
+            if (mobileMenuToggle && navLinks) {
+                mobileMenuToggle.addEventListener('click', () => {
+                    mobileMenuToggle.classList.toggle('active');
+                    navLinks.classList.toggle('active');
+                    document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
+                });
+
+                // Close mobile menu when clicking a nav link
+                navLinks.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        mobileMenuToggle.classList.remove('active');
+                        navLinks.classList.remove('active');
+                        document.body.style.overflow = '';
+                    });
+                });
+            }
+        })();
+    </script>
+</body>
+</html>

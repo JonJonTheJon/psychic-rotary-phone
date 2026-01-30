@@ -1,0 +1,233 @@
+[
+    {
+        "id": 1,
+        "title": "Tuntematon Sotilas",
+        "year": 2017,
+        "poster_url": "https://image.tmdb.org/t/p/w500/vOipe2myi26UNfY1ufV8Ywlwqbe.jpg",
+        "dop": "Mika Orasmaa",
+        "bobo_crew": "Matti Kuusniemi (DIT)",
+        "trailer_url": "https://www.youtube.com/watch?v=4dAaLbsQSzI",
+        "imdb_url": "https://www.imdb.com/title/tt4065552/",
+        "production_company": "Elokuvaosakeyhtiö Suomi 2017"
+    },
+    {
+        "id": 2,
+        "title": "Hevi Reissu",
+        "year": 2018,
+        "poster_url": "https://image.tmdb.org/t/p/w500/xJnbMTrJ2fl1AXAKx34qu8yMDnv.jpg",
+        "dop": "Tuomo Hutri",
+        "bobo_crew": "Matti Kuusniemi (DIT)",
+        "trailer_url": "https://www.youtube.com/watch?v=VZjGnwMPGXg",
+        "imdb_url": "https://www.imdb.com/title/tt7330844/",
+        "production_company": "Making Movies"
+    },
+    {
+        "id": 3,
+        "title": "Laugh or Die",
+        "year": 2018,
+        "poster_url": "https://image.tmdb.org/t/p/w500/7KdmKMcMwrMXvPXoK0N7mM9sNNw.jpg",
+        "dop": "Rauno Ronkainen",
+        "bobo_crew": "Matti Kuusniemi (DIT)",
+        "trailer_url": "https://www.youtube.com/watch?v=4b7gF04CpHQ",
+        "imdb_url": "https://www.imdb.com/title/tt6995682/",
+        "production_company": "Helsinki-filmi"
+    },
+    {
+        "id": 4,
+        "title": "Oma maa",
+        "year": 2018,
+        "poster_url": "https://image.tmdb.org/t/p/w500/7RaFtzxtaiO21vyVkGfxlbPVPV0.jpg",
+        "dop": "Rauno Ronkainen",
+        "bobo_crew": "Matti Kuusniemi (DIT)",
+        "trailer_url": "https://www.youtube.com/watch?v=G_2T6l_Rnx0",
+        "imdb_url": "https://www.imdb.com/title/tt7501562/",
+        "production_company": "Elokuvaosakeyhtiö Aamu"
+    },
+    {
+        "id": 5,
+        "title": "Veljeni Vartija",
+        "year": 2018,
+        "poster_url": "https://image.tmdb.org/t/p/w500/bQS43HSLZzMjZkcHJz4fGc7fNdz.jpg",
+        "dop": "Tuomo Hutri",
+        "bobo_crew": "Matti Kuusniemi (DIT)",
+        "trailer_url": "https://www.youtube.com/watch?v=cMTAUr3Nm6I",
+        "imdb_url": "https://www.imdb.com/title/tt7501678/",
+        "production_company": "Solar Films"
+    },
+    {
+        "id": 6,
+        "title": "Tuntematon mestari",
+        "year": 2018,
+        "poster_url": "https://image.tmdb.org/t/p/w500/8PWFBT8K8YnFtyqaAM3GbdzYoMV.jpg",
+        "dop": "Peter Flinckenberg",
+        "bobo_crew": "Matti Kuusniemi (DIT)",
+        "trailer_url": "https://www.youtube.com/watch?v=_jBLyJQHR3Q",
+        "imdb_url": "https://www.imdb.com/title/tt7501796/",
+        "production_company": "Inland Film Company"
+    },
+    {
+        "id": 7,
+        "title": "Ihmisen osa",
+        "year": 2018,
+        "poster_url": "https://image.tmdb.org/t/p/w500/iLmYX6gK3rXhNl8TWYjrCxsUKlx.jpg",
+        "dop": "Pietari Peltola",
+        "bobo_crew": "Matti Kuusniemi (DIT)",
+        "trailer_url": "https://www.youtube.com/watch?v=eFynkQl9Gek",
+        "imdb_url": "https://www.imdb.com/title/tt7530692/",
+        "production_company": "Bufo"
+    },
+    {
+        "id": 8,
+        "title": "Joulumaa",
+        "year": 2017,
+        "poster_url": "https://image.tmdb.org/t/p/w500/ueAXbqFzSmqqJ1l4PxRkiKxLNVH.jpg",
+        "dop": "Hannu-Pekka Vitikainen",
+        "bobo_crew": "Matti Kuusniemi (DIT)",
+        "trailer_url": "https://www.youtube.com/watch?v=E3A3Q1PC7Ok",
+        "imdb_url": "https://www.imdb.com/title/tt6265014/",
+        "production_company": "Solar Films"
+    },
+    {
+        "id": 9,
+        "title": "Dead of Winter",
+        "year": 2025,
+        "poster_url": "https://image.tmdb.org/t/p/w500/5DcrN62sGAiRJxt8rXSRlSRLwIE.jpg",
+        "dop": "",
+        "bobo_crew": "Michael Paulis (DIT)",
+        "trailer_url": "https://www.youtube.com/watch?v=lGb8hIJ3YFQ",
+        "imdb_url": "https://www.imdb.com/title/tt7574556/",
+        "production_company": ""
+    },
+    {
+        "id": 10,
+        "title": "Eagles of the Republic",
+        "year": 2025,
+        "poster_url": "https://image.tmdb.org/t/p/w500/b46cbfCnTKc0JXMFhizMTw4Efxh.jpg",
+        "dop": "",
+        "bobo_crew": "Paco Bouazza (DIT)",
+        "trailer_url": "",
+        "imdb_url": "https://www.imdb.com/title/tt30781967/",
+        "production_company": ""
+    },
+    {
+        "id": 11,
+        "title": "To Cook a Bear",
+        "year": 2025,
+        "poster_url": "https://image.tmdb.org/t/p/w500/71dqddtGqtCWLJApvZuznxvIzvj.jpg",
+        "dop": "",
+        "bobo_crew": "Michael Paulis (DIT)",
+        "trailer_url": "",
+        "imdb_url": "https://www.imdb.com/title/tt23772966/",
+        "production_company": "Disney+"
+    },
+    {
+        "id": 12,
+        "title": "Constellation",
+        "year": 2024,
+        "poster_url": "https://image.tmdb.org/t/p/w500/21ICs3fxlxGslbzS4moCHk9HNo6.jpg",
+        "dop": "",
+        "bobo_crew": "Michael Paulis (Qtake Operator)",
+        "trailer_url": "",
+        "imdb_url": "https://www.imdb.com/title/tt19395018/",
+        "production_company": "Apple TV+"
+    },
+    {
+        "id": 13,
+        "title": "Last to Brake",
+        "year": 2024,
+        "poster_url": "https://image.tmdb.org/t/p/w500/7QbgX4mWwAtPAdpg8ZynutefLsr.jpg",
+        "dop": "",
+        "bobo_crew": "Tomi Tavi (DIT)",
+        "trailer_url": "",
+        "imdb_url": "https://www.imdb.com/title/tt27531651/",
+        "production_company": ""
+    },
+    {
+        "id": 14,
+        "title": "A Rare Grand Alignment",
+        "year": 2024,
+        "poster_url": "https://image.tmdb.org/t/p/w500/kAtUDiv9BZzsusE9Hld6xiAlwqQ.jpg",
+        "dop": "",
+        "bobo_crew": "Paco Bouazza (DIT)",
+        "trailer_url": "",
+        "imdb_url": "https://www.imdb.com/title/tt12209830/",
+        "production_company": ""
+    },
+    {
+        "id": 15,
+        "title": "Boy from Heaven",
+        "year": 2022,
+        "poster_url": "https://image.tmdb.org/t/p/w500/zDRAA4UJWgQnSFxhJuefnwO74v5.jpg",
+        "dop": "",
+        "bobo_crew": "Paco Bouazza (DIT)",
+        "trailer_url": "",
+        "imdb_url": "https://www.imdb.com/title/tt15452062/",
+        "production_company": ""
+    },
+    {
+        "id": 16,
+        "title": "Codename: Annika",
+        "year": 2023,
+        "poster_url": "https://image.tmdb.org/t/p/w500/yt12AdvzGrjYc6S6ayPOyAEaTNp.jpg",
+        "dop": "",
+        "bobo_crew": "Paco Bouazza (DIT)",
+        "trailer_url": "",
+        "imdb_url": "https://www.imdb.com/title/tt28688874/",
+        "production_company": "SkyShowtime"
+    },
+    {
+        "id": 17,
+        "title": "Little Siberia",
+        "year": 2025,
+        "poster_url": "https://image.tmdb.org/t/p/w500/cXpkhN2l0z8sZpijzLKYdNXdFAI.jpg",
+        "dop": "",
+        "bobo_crew": "Paco Bouazza (DIT)",
+        "trailer_url": "",
+        "imdb_url": "https://www.imdb.com/title/tt31828346/",
+        "production_company": "Netflix"
+    },
+    {
+        "id": 18,
+        "title": "Afterwar",
+        "year": 2024,
+        "poster_url": "https://image.tmdb.org/t/p/w500/34Jl1PXlrvbDTkjP7FLsMMWE0ce.jpg",
+        "dop": "Birgitte Stærmose",
+        "bobo_crew": "Paco Bouazza (DIT)",
+        "trailer_url": "",
+        "imdb_url": "https://www.imdb.com/title/tt29045832/",
+        "production_company": ""
+    },
+    {
+        "id": 19,
+        "title": "Dual",
+        "year": 2022,
+        "poster_url": "https://image.tmdb.org/t/p/w500/wDEse2TQRiyfhdlusSXBdkDOQRj.jpg",
+        "dop": "",
+        "bobo_crew": "Paco Bouazza (DIT), Michael Paulis (Qtake Operator)",
+        "trailer_url": "",
+        "imdb_url": "https://www.imdb.com/title/tt9005184/",
+        "production_company": ""
+    },
+    {
+        "id": 20,
+        "title": "Get Away",
+        "year": 2024,
+        "poster_url": "https://image.tmdb.org/t/p/w500/ser6ZCKHMXhQISKULYCxz6Saf3I.jpg",
+        "dop": "",
+        "bobo_crew": "Paco Bouazza (DIT)",
+        "trailer_url": "",
+        "imdb_url": "https://www.imdb.com/title/tt10449276/",
+        "production_company": "IFC Films"
+    },
+    {
+        "id": 21,
+        "title": "Over Your Dead Body",
+        "year": 2026,
+        "poster_url": "",
+        "dop": "",
+        "bobo_crew": "Paco Bouazza (DIT), Michael Paulis (Qtake Operator)",
+        "trailer_url": "",
+        "imdb_url": "https://www.imdb.com/title/tt34685692/",
+        "production_company": "IFC Films"
+    }
+]
