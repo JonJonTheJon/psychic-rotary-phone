@@ -574,6 +574,13 @@
         }
         .bay-icon.bay-6 .drive-slot { width: 12px; height: 10px; }
 
+        .bay-icon.bay-8 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2px;
+        }
+        .bay-icon.bay-8 .drive-slot { width: 10px; height: 10px; }
+
         .bay-icon.bay-12 {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -1117,17 +1124,65 @@
             color: var(--text-secondary);
         }
 
-        .contingency-note {
-            background: rgba(212, 132, 90, 0.15);
-            border-radius: 8px;
-            padding: var(--space-md);
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            text-align: center;
+        /* Info tooltip for 20% safety */
+        .info-tooltip {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            margin-left: 6px;
+            cursor: help;
         }
 
-        .contingency-note strong {
-            color: var(--accent);
+        .info-tooltip-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--text-tertiary);
+            color: var(--bg-primary);
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+        }
+
+        .info-tooltip:hover .info-tooltip-icon {
+            background: var(--accent);
+        }
+
+        .info-tooltip-content {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: var(--space-sm) var(--space-md);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .info-tooltip:hover .info-tooltip-content {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .info-tooltip-content::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: var(--bg-elevated);
         }
 
         /* Price Estimate */
@@ -1773,6 +1828,25 @@
         body.light-mode .download-pdf-btn:hover {
             background: var(--text-secondary);
         }
+
+        body.light-mode .info-tooltip-icon {
+            background: var(--text-tertiary);
+            color: #fff;
+        }
+
+        body.light-mode .info-tooltip:hover .info-tooltip-icon {
+            background: var(--text-primary);
+        }
+
+        body.light-mode .info-tooltip-content {
+            background: #fff;
+            border-color: var(--border);
+            color: var(--text-secondary);
+        }
+
+        body.light-mode .info-tooltip-content::after {
+            border-top-color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -1983,6 +2057,20 @@
                                 </div>
                                 <span class="bay-label">6 Bay</span>
                             </label>
+                            <label class="bay-option" data-bays="8">
+                                <input type="radio" name="bay-count" value="8">
+                                <div class="bay-icon bay-8">
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                    <div class="drive-slot"></div>
+                                </div>
+                                <span class="bay-label">8 Bay</span>
+                            </label>
                             <label class="bay-option" data-bays="12">
                                 <input type="radio" name="bay-count" value="12">
                                 <div class="bay-icon bay-12">
@@ -2154,10 +2242,10 @@
                         <div class="form-group">
                             <label for="connection-type">Connection Type</label>
                             <select id="connection-type" oninput="calculateStorage()">
-                                <option value="usb3">USB 3.0 (~400 MB/s)</option>
-                                <option value="usb31">USB 3.1 Gen 2 (~900 MB/s)</option>
-                                <option value="usb32">USB 3.2 Gen 2x2 (~1,800 MB/s)</option>
-                                <option value="tb3" selected>Thunderbolt 3/4 (~2,800 MB/s)</option>
+                                <option value="usb3">USB 3.0</option>
+                                <option value="usb31">USB 3.1 Gen 2</option>
+                                <option value="usb32">USB 3.2 Gen 2x2</option>
+                                <option value="tb3" selected>Thunderbolt 3/4</option>
                             </select>
                         </div>
                     </div>
@@ -2185,17 +2273,19 @@
                             <div class="result-value"><span id="raw-storage">0</span> <span class="result-unit">TB</span></div>
                         </div>
                         <div class="result-item">
-                            <div class="result-label">With 20% Safety</div>
+                            <div class="result-label">
+                                With 20% Safety
+                                <span class="info-tooltip">
+                                    <span class="info-tooltip-icon">?</span>
+                                    <span class="info-tooltip-content">For drive safety, file system overhead, and unexpected footage</span>
+                                </span>
+                            </div>
                             <div class="result-value"><span id="safe-storage">0</span> <span class="result-unit">TB</span></div>
                         </div>
                         <div class="result-item">
                             <div class="result-label">Total Drive Capacity Needed</div>
                             <div class="result-value"><span id="total-storage">0</span> <span class="result-unit">TB</span></div>
                         </div>
-                    </div>
-
-                    <div class="contingency-note">
-                        <strong>20% contingency</strong> added for drive safety, file system overhead, and unexpected additional footage.
                     </div>
 
                     <!-- Price Estimate -->
@@ -2230,10 +2320,6 @@
                             <div class="transfer-item">
                                 <div class="transfer-item-label">Total Project Transfer</div>
                                 <div class="transfer-item-value" id="total-transfer">0 min</div>
-                            </div>
-                            <div class="transfer-item">
-                                <div class="transfer-item-label">Effective Speed</div>
-                                <div class="transfer-item-value" id="effective-speed">0 MB/s</div>
                             </div>
                         </div>
                     </div>
@@ -2548,6 +2634,7 @@
             2: { 0: 200, 1: 250, 2: 150, 3: 200, 4: 300 },   // 2-bay enclosures
             4: { 0: 500, 1: 600, 2: 400, 3: 600, 4: 900 },   // 4-bay enclosures
             6: { 0: 800, 1: 950, 2: 700, 3: 900, 4: 1300 },  // 6-bay enclosures
+            8: { 0: 1100, 1: 1300, 2: 1000, 3: 1300, 4: 1800 }, // 8-bay enclosures
             12: { 0: 1500, 1: 1800, 2: 1400, 3: 1800, 4: 2500 } // 12-bay enclosures
         };
 
@@ -3163,7 +3250,6 @@
 
             document.getElementById('daily-transfer').textContent = formatTime(dailyTransferSeconds);
             document.getElementById('total-transfer').textContent = formatTime(totalTransferSeconds);
-            document.getElementById('effective-speed').textContent = `${effectiveSpeed.toLocaleString()} MB/s`;
 
             // Calculate price estimates
             const driveInfo = driveSpeeds[selectedDriveSpeed];
@@ -3577,13 +3663,10 @@
 
             const dailyTransfer = document.getElementById('daily-transfer')?.textContent || '0';
             const totalTransfer = document.getElementById('total-transfer')?.textContent || '0';
-            const effectiveSpeed = document.getElementById('effective-speed')?.textContent || '0';
 
             doc.text(`Daily Transfer: ${dailyTransfer}`, leftMargin, y);
             y += 6;
             doc.text(`Total Project Transfer: ${totalTransfer}`, leftMargin, y);
-            y += 6;
-            doc.text(`Effective Speed: ${effectiveSpeed}`, leftMargin, y);
             y += 20;
 
             // Footer
